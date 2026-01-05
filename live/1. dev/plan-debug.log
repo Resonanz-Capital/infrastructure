@@ -1,0 +1,384 @@
+[0;90m16:05:01.054[0m [0;32mINFO  [0m Unit queue will be processed for plan in this order:
+- Unit .
+- Unit ./acr
+- Unit ./app-service
+- Unit ./app-service-containers
+- Unit ./application-gateway
+- Unit ./log-analytics
+- Unit ./redis-cache
+- Unit ./sql-database
+- Unit ./storage-account
+- Unit ./vnet
+- Unit ./vpn-gateway
+- Unit ./alerting
+- Unit ./diagnostic-settings
+
+[0;90m16:05:01.100[0m [0;31mERROR [0m [0;38;5;66m[vpn-gateway] [0mError: Unsupported attribute
+[0;90m16:05:01.101[0m [0;31mERROR [0m [0;38;5;66m[vpn-gateway] [0m  on ./vpn-gateway/terragrunt.hcl line 10:
+[0;90m16:05:01.101[0m [0;31mERROR [0m [0;38;5;66m[vpn-gateway] [0m  10:   gateway_subnet_id            = dependency.vnet.outputs.gateway_subnet_id
+[0;90m16:05:01.101[0m [0;31mERROR [0m [0;38;5;66m[vpn-gateway] [0mThis object does not have an attribute named "vnet".
+[0;90m16:05:01.102[0m [0;31mERROR [0m [0;38;5;67m[application-gateway] [0mError: Unsupported attribute
+[0;90m16:05:01.102[0m [0;31mERROR [0m [0;38;5;67m[application-gateway] [0m  on ./application-gateway/terragrunt.hcl line 10:
+[0;90m16:05:01.102[0m [0;31mERROR [0m [0;38;5;67m[application-gateway] [0m  10:   app_gateway_subnet_id = dependency.vnet.outputs.app_gateway_subnet_id
+[0;90m16:05:01.102[0m [0;31mERROR [0m [0;38;5;67m[application-gateway] [0mThis object does not have an attribute named "vnet".
+[0;90m16:05:01.141[0m [0;31mSTDERR[0m [0;38;5;95m[acr] [0m[0;36mterraform: [0m[31m╷[0m[0m[0m
+[0;90m16:05:01.141[0m [0;31mSTDERR[0m [0;38;5;95m[acr] [0m[0;36mterraform: [0m[31m│[0m [0m[1m[31mError: [0m[0m[1mFailed to parse command-line flags[0m[0m
+[0;90m16:05:01.141[0m [0;31mSTDERR[0m [0;38;5;95m[acr] [0m[0;36mterraform: [0m[31m│[0m [0m[0m
+[0;90m16:05:01.141[0m [0;31mSTDERR[0m [0;38;5;95m[acr] [0m[0;36mterraform: [0m[31m│[0m [0m[0mflag provided but not defined: -terragrunt-log-level[0m
+[0;90m16:05:01.141[0m [0;31mSTDERR[0m [0;38;5;95m[acr] [0m[0;36mterraform: [0m[31m╵[0m[0m[0m
+[0;90m16:05:01.141[0m [0;31mSTDERR[0m [0;38;5;95m[acr] [0m[0;36mterraform: [0m[31m╷[0m[0m[0m
+[0;90m16:05:01.141[0m [0;31mSTDERR[0m [0;38;5;95m[acr] [0m[0;36mterraform: [0m[31m│[0m [0m[1m[31mError: [0m[0m[1mToo many command line arguments[0m[0m
+[0;90m16:05:01.142[0m [0;31mSTDERR[0m [0;38;5;95m[acr] [0m[0;36mterraform: [0m[31m│[0m [0m[0m
+[0;90m16:05:01.142[0m [0;31mSTDERR[0m [0;38;5;95m[acr] [0m[0;36mterraform: [0m[31m│[0m [0m[0mTo specify a working directory for the plan, use the global -chdir flag.[0m
+[0;90m16:05:01.142[0m [0;31mSTDERR[0m [0;38;5;95m[acr] [0m[0;36mterraform: [0m[31m╵[0m[0m[0m
+[0;90m16:05:01.142[0m [0;32mINFO  [0m [0;38;5;96m[log-analytics] [0m[0;36mterraform: [0m[0m[1mInitializing the backend...[0m[0m
+[0;90m16:05:01.142[0m [0;31mSTDERR[0m [0;38;5;95m[acr] [0m[0;36mterraform: [0mFor more help on using this command, run:
+[0;90m16:05:01.142[0m [0;31mSTDERR[0m [0;38;5;95m[acr] [0m[0;36mterraform: [0m  terraform plan -help
+[0;90m16:05:01.142[0m [0;32mINFO  [0m [0;38;5;102m[app-service] [0m[0;36mterraform: [0m[0m[1mInitializing the backend...[0m[0m
+[0;90m16:05:01.142[0m [0;32mINFO  [0m [0;38;5;103m[redis-cache] [0m[0;36mterraform: [0m[0m[1mInitializing the backend...[0m[0m
+[0;90m16:05:01.143[0m [0;32mINFO  [0m [0;38;5;108m[sql-database] [0m[0;36mterraform: [0m[0m[1mInitializing the backend...[0m[0m
+[0;90m16:05:01.144[0m [0;32mINFO  [0m [0;38;5;109m[app-service-containers] [0m[0;36mterraform: [0m[0m[1mInitializing the backend...[0m[0m
+[0;90m16:05:01.144[0m [0;32mINFO  [0m [0;38;5;138m[vnet] [0m[0;36mterraform: [0m[0m[1mInitializing the backend...[0m[0m
+[0;90m16:05:01.146[0m [0;32mINFO  [0m [0;38;5;139m[storage-account] [0m[0;36mterraform: [0m[0m[1mInitializing the backend...[0m[0m
+[0;90m16:05:01.151[0m [0;31mSTDERR[0m [0;36mterraform: [0m[31m╷[0m[0m[0m
+[0;90m16:05:01.151[0m [0;31mSTDERR[0m [0;36mterraform: [0m[31m│[0m [0m[1m[31mError: [0m[0m[1mFailed to parse command-line flags[0m[0m
+[0;90m16:05:01.151[0m [0;31mSTDERR[0m [0;36mterraform: [0m[31m│[0m [0m[0m
+[0;90m16:05:01.151[0m [0;31mSTDERR[0m [0;36mterraform: [0m[31m│[0m [0m[0mflag provided but not defined: -terragrunt-log-level[0m
+[0;90m16:05:01.151[0m [0;31mSTDERR[0m [0;36mterraform: [0m[31m╵[0m[0m[0m
+[0;90m16:05:01.151[0m [0;31mSTDERR[0m [0;36mterraform: [0m[31m╷[0m[0m[0m
+[0;90m16:05:01.151[0m [0;31mSTDERR[0m [0;36mterraform: [0m[31m│[0m [0m[1m[31mError: [0m[0m[1mToo many command line arguments[0m[0m
+[0;90m16:05:01.151[0m [0;31mSTDERR[0m [0;36mterraform: [0m[31m│[0m [0m[0m
+[0;90m16:05:01.151[0m [0;31mSTDERR[0m [0;36mterraform: [0m[31m│[0m [0m[0mTo specify a working directory for the plan, use the global -chdir flag.[0m
+[0;90m16:05:01.152[0m [0;31mSTDERR[0m [0;36mterraform: [0m[31m╵[0m[0m[0m
+[0;90m16:05:01.152[0m [0;31mSTDERR[0m [0;36mterraform: [0mFor more help on using this command, run:
+[0;90m16:05:01.152[0m [0;31mSTDERR[0m [0;36mterraform: [0m  terraform plan -help
+[0;90m16:05:04.612[0m [0;31mERROR [0m [0;38;5;108m[sql-database] [0m[0;36mterraform: [0m[31m╷[0m[0m[0m
+[0;90m16:05:04.612[0m [0;31mERROR [0m [0;38;5;108m[sql-database] [0m[0;36mterraform: [0m[31m│[0m [0m[1m[31mError: [0m[0m[1m[0mTerraform encountered problems during initialisation, including problems[0m
+[0;90m16:05:04.612[0m [0;31mERROR [0m [0;38;5;108m[sql-database] [0m[0;36mterraform: [0m[31m│[0m [0mwith the configuration, described below.[0m
+[0;90m16:05:04.612[0m [0;31mERROR [0m [0;38;5;108m[sql-database] [0m[0;36mterraform: [0m[31m│[0m [0m[0m
+[0;90m16:05:04.612[0m [0;31mERROR [0m [0;38;5;108m[sql-database] [0m[0;36mterraform: [0m[31m│[0m [0mThe Terraform configuration must be valid before initialization so that[0m
+[0;90m16:05:04.613[0m [0;31mERROR [0m [0;38;5;108m[sql-database] [0m[0;36mterraform: [0m[31m│[0m [0mTerraform can determine which modules and providers need to be installed.[0m[0m[0m
+[0;90m16:05:04.613[0m [0;31mERROR [0m [0;38;5;108m[sql-database] [0m[0;36mterraform: [0m[31m│[0m [0m[0m
+[0;90m16:05:04.613[0m [0;31mERROR [0m [0;38;5;108m[sql-database] [0m[0;36mterraform: [0m[31m│[0m [0m[0m[0m
+[0;90m16:05:04.613[0m [0;31mERROR [0m [0;38;5;108m[sql-database] [0m[0;36mterraform: [0m[31m╵[0m[0m[0m
+[0;90m16:05:04.613[0m [0;31mERROR [0m [0;38;5;108m[sql-database] [0m[0;36mterraform: [0m[31m╷[0m[0m[0m
+[0;90m16:05:04.613[0m [0;31mERROR [0m [0;38;5;108m[sql-database] [0m[0;36mterraform: [0m[31m│[0m [0m[1m[31mError: [0m[0m[1mDuplicate 'backend' configuration block[0m[0m
+[0;90m16:05:04.613[0m [0;31mERROR [0m [0;38;5;108m[sql-database] [0m[0;36mterraform: [0m[31m│[0m [0m[0m
+[0;90m16:05:04.614[0m [0;31mERROR [0m [0;38;5;108m[sql-database] [0m[0;36mterraform: [0m[31m│[0m [0m[0m  on main.tf line 9, in terraform:[0m
+[0;90m16:05:04.614[0m [0;31mERROR [0m [0;38;5;108m[sql-database] [0m[0;36mterraform: [0m[31m│[0m [0m   9:   [4mbackend "azurerm"[0m {}[0m[0m
+[0;90m16:05:04.614[0m [0;31mERROR [0m [0;38;5;108m[sql-database] [0m[0;36mterraform: [0m[31m│[0m [0m[0m
+[0;90m16:05:04.614[0m [0;31mERROR [0m [0;38;5;108m[sql-database] [0m[0;36mterraform: [0m[31m│[0m [0mA module may have only one 'backend' configuration block. The backend was[0m
+[0;90m16:05:04.614[0m [0;31mERROR [0m [0;38;5;108m[sql-database] [0m[0;36mterraform: [0m[31m│[0m [0mpreviously configured at backend.tf:3,3-20.[0m
+[0;90m16:05:04.614[0m [0;31mERROR [0m [0;38;5;108m[sql-database] [0m[0;36mterraform: [0m[31m╵[0m[0m[0m
+[0;90m16:05:04.656[0m [0;31mERROR [0m [0;38;5;102m[app-service] [0m[0;36mterraform: [0m[31m╷[0m[0m[0m
+[0;90m16:05:04.656[0m [0;31mERROR [0m [0;38;5;102m[app-service] [0m[0;36mterraform: [0m[31m│[0m [0m[1m[31mError: [0m[0m[1m[0mTerraform encountered problems during initialisation, including problems[0m
+[0;90m16:05:04.656[0m [0;31mERROR [0m [0;38;5;102m[app-service] [0m[0;36mterraform: [0m[31m│[0m [0mwith the configuration, described below.[0m
+[0;90m16:05:04.656[0m [0;31mERROR [0m [0;38;5;102m[app-service] [0m[0;36mterraform: [0m[31m│[0m [0m[0m
+[0;90m16:05:04.656[0m [0;31mERROR [0m [0;38;5;102m[app-service] [0m[0;36mterraform: [0m[31m│[0m [0mThe Terraform configuration must be valid before initialization so that[0m
+[0;90m16:05:04.656[0m [0;31mERROR [0m [0;38;5;102m[app-service] [0m[0;36mterraform: [0m[31m│[0m [0mTerraform can determine which modules and providers need to be installed.[0m[0m[0m
+[0;90m16:05:04.656[0m [0;31mERROR [0m [0;38;5;102m[app-service] [0m[0;36mterraform: [0m[31m│[0m [0m[0m
+[0;90m16:05:04.656[0m [0;31mERROR [0m [0;38;5;102m[app-service] [0m[0;36mterraform: [0m[31m│[0m [0m[0m[0m
+[0;90m16:05:04.656[0m [0;31mERROR [0m [0;38;5;102m[app-service] [0m[0;36mterraform: [0m[31m╵[0m[0m[0m
+[0;90m16:05:04.657[0m [0;31mERROR [0m [0;38;5;102m[app-service] [0m[0;36mterraform: [0m[31m╷[0m[0m[0m
+[0;90m16:05:04.657[0m [0;31mERROR [0m [0;38;5;102m[app-service] [0m[0;36mterraform: [0m[31m│[0m [0m[1m[31mError: [0m[0m[1mDuplicate 'backend' configuration block[0m[0m
+[0;90m16:05:04.657[0m [0;31mERROR [0m [0;38;5;102m[app-service] [0m[0;36mterraform: [0m[31m│[0m [0m[0m
+[0;90m16:05:04.657[0m [0;31mERROR [0m [0;38;5;102m[app-service] [0m[0;36mterraform: [0m[31m│[0m [0m[0m  on main.tf line 9, in terraform:[0m
+[0;90m16:05:04.657[0m [0;31mERROR [0m [0;38;5;102m[app-service] [0m[0;36mterraform: [0m[31m│[0m [0m   9:   [4mbackend "azurerm"[0m {}[0m[0m
+[0;90m16:05:04.657[0m [0;31mERROR [0m [0;38;5;102m[app-service] [0m[0;36mterraform: [0m[31m│[0m [0m[0m
+[0;90m16:05:04.657[0m [0;31mERROR [0m [0;38;5;102m[app-service] [0m[0;36mterraform: [0m[31m│[0m [0mA module may have only one 'backend' configuration block. The backend was[0m
+[0;90m16:05:04.658[0m [0;31mERROR [0m [0;38;5;102m[app-service] [0m[0;36mterraform: [0m[31m│[0m [0mpreviously configured at backend.tf:3,3-20.[0m
+[0;90m16:05:04.658[0m [0;31mERROR [0m [0;38;5;102m[app-service] [0m[0;36mterraform: [0m[31m╵[0m[0m[0m
+[0;90m16:05:04.710[0m [0;31mERROR [0m [0;38;5;138m[vnet] [0m[0;36mterraform: [0m[31m╷[0m[0m[0m
+[0;90m16:05:04.710[0m [0;31mERROR [0m [0;38;5;138m[vnet] [0m[0;36mterraform: [0m[31m│[0m [0m[1m[31mError: [0m[0m[1m[0mTerraform encountered problems during initialisation, including problems[0m
+[0;90m16:05:04.711[0m [0;31mERROR [0m [0;38;5;138m[vnet] [0m[0;36mterraform: [0m[31m│[0m [0mwith the configuration, described below.[0m
+[0;90m16:05:04.711[0m [0;31mERROR [0m [0;38;5;138m[vnet] [0m[0;36mterraform: [0m[31m│[0m [0m[0m
+[0;90m16:05:04.711[0m [0;31mERROR [0m [0;38;5;138m[vnet] [0m[0;36mterraform: [0m[31m│[0m [0mThe Terraform configuration must be valid before initialization so that[0m
+[0;90m16:05:04.711[0m [0;31mERROR [0m [0;38;5;138m[vnet] [0m[0;36mterraform: [0m[31m│[0m [0mTerraform can determine which modules and providers need to be installed.[0m[0m[0m
+[0;90m16:05:04.711[0m [0;31mERROR [0m [0;38;5;138m[vnet] [0m[0;36mterraform: [0m[31m│[0m [0m[0m
+[0;90m16:05:04.711[0m [0;31mERROR [0m [0;38;5;138m[vnet] [0m[0;36mterraform: [0m[31m│[0m [0m[0m[0m
+[0;90m16:05:04.711[0m [0;31mERROR [0m [0;38;5;138m[vnet] [0m[0;36mterraform: [0m[31m╵[0m[0m[0m
+[0;90m16:05:04.714[0m [0;31mERROR [0m [0;38;5;138m[vnet] [0m[0;36mterraform: [0m[31m╷[0m[0m[0m
+[0;90m16:05:04.714[0m [0;31mERROR [0m [0;38;5;138m[vnet] [0m[0;36mterraform: [0m[31m│[0m [0m[1m[31mError: [0m[0m[1mDuplicate 'backend' configuration block[0m[0m
+[0;90m16:05:04.714[0m [0;31mERROR [0m [0;38;5;138m[vnet] [0m[0;36mterraform: [0m[31m│[0m [0m[0m
+[0;90m16:05:04.714[0m [0;31mERROR [0m [0;38;5;138m[vnet] [0m[0;36mterraform: [0m[31m│[0m [0m[0m  on main.tf line 9, in terraform:[0m
+[0;90m16:05:04.714[0m [0;31mERROR [0m [0;38;5;138m[vnet] [0m[0;36mterraform: [0m[31m│[0m [0m   9:   [4mbackend "azurerm"[0m {}[0m[0m
+[0;90m16:05:04.714[0m [0;31mERROR [0m [0;38;5;138m[vnet] [0m[0;36mterraform: [0m[31m│[0m [0m[0m
+[0;90m16:05:04.714[0m [0;31mERROR [0m [0;38;5;138m[vnet] [0m[0;36mterraform: [0m[31m│[0m [0mA module may have only one 'backend' configuration block. The backend was[0m
+[0;90m16:05:04.714[0m [0;31mERROR [0m [0;38;5;138m[vnet] [0m[0;36mterraform: [0m[31m│[0m [0mpreviously configured at backend.tf:3,3-20.[0m
+[0;90m16:05:04.714[0m [0;31mERROR [0m [0;38;5;138m[vnet] [0m[0;36mterraform: [0m[31m╵[0m[0m[0m
+[0;90m16:05:04.791[0m [0;31mERROR [0m [0;38;5;96m[log-analytics] [0m[0;36mterraform: [0m[31m╷[0m[0m[0m
+[0;90m16:05:04.791[0m [0;31mERROR [0m [0;38;5;96m[log-analytics] [0m[0;36mterraform: [0m[31m│[0m [0m[1m[31mError: [0m[0m[1m[0mTerraform encountered problems during initialisation, including problems[0m
+[0;90m16:05:04.792[0m [0;31mERROR [0m [0;38;5;96m[log-analytics] [0m[0;36mterraform: [0m[31m│[0m [0mwith the configuration, described below.[0m
+[0;90m16:05:04.792[0m [0;31mERROR [0m [0;38;5;96m[log-analytics] [0m[0;36mterraform: [0m[31m│[0m [0m[0m
+[0;90m16:05:04.792[0m [0;31mERROR [0m [0;38;5;96m[log-analytics] [0m[0;36mterraform: [0m[31m│[0m [0mThe Terraform configuration must be valid before initialization so that[0m
+[0;90m16:05:04.792[0m [0;31mERROR [0m [0;38;5;96m[log-analytics] [0m[0;36mterraform: [0m[31m│[0m [0mTerraform can determine which modules and providers need to be installed.[0m[0m[0m
+[0;90m16:05:04.792[0m [0;31mERROR [0m [0;38;5;96m[log-analytics] [0m[0;36mterraform: [0m[31m│[0m [0m[0m
+[0;90m16:05:04.792[0m [0;31mERROR [0m [0;38;5;96m[log-analytics] [0m[0;36mterraform: [0m[31m│[0m [0m[0m[0m
+[0;90m16:05:04.792[0m [0;31mERROR [0m [0;38;5;96m[log-analytics] [0m[0;36mterraform: [0m[31m╵[0m[0m[0m
+[0;90m16:05:04.792[0m [0;31mERROR [0m [0;38;5;96m[log-analytics] [0m[0;36mterraform: [0m[31m╷[0m[0m[0m
+[0;90m16:05:04.792[0m [0;31mERROR [0m [0;38;5;96m[log-analytics] [0m[0;36mterraform: [0m[31m│[0m [0m[1m[31mError: [0m[0m[1mDuplicate 'backend' configuration block[0m[0m
+[0;90m16:05:04.792[0m [0;31mERROR [0m [0;38;5;96m[log-analytics] [0m[0;36mterraform: [0m[31m│[0m [0m[0m
+[0;90m16:05:04.793[0m [0;31mERROR [0m [0;38;5;96m[log-analytics] [0m[0;36mterraform: [0m[31m│[0m [0m[0m  on main.tf line 9, in terraform:[0m
+[0;90m16:05:04.793[0m [0;31mERROR [0m [0;38;5;96m[log-analytics] [0m[0;36mterraform: [0m[31m│[0m [0m   9:   [4mbackend "azurerm"[0m {}[0m[0m
+[0;90m16:05:04.793[0m [0;31mERROR [0m [0;38;5;96m[log-analytics] [0m[0;36mterraform: [0m[31m│[0m [0m[0m
+[0;90m16:05:04.793[0m [0;31mERROR [0m [0;38;5;96m[log-analytics] [0m[0;36mterraform: [0m[31m│[0m [0mA module may have only one 'backend' configuration block. The backend was[0m
+[0;90m16:05:04.793[0m [0;31mERROR [0m [0;38;5;96m[log-analytics] [0m[0;36mterraform: [0m[31m│[0m [0mpreviously configured at backend.tf:3,3-20.[0m
+[0;90m16:05:04.793[0m [0;31mERROR [0m [0;38;5;96m[log-analytics] [0m[0;36mterraform: [0m[31m╵[0m[0m[0m
+[0;90m16:05:04.794[0m [0;31mERROR [0m [0;38;5;109m[app-service-containers] [0m[0;36mterraform: [0m[31m╷[0m[0m[0m
+[0;90m16:05:04.794[0m [0;31mERROR [0m [0;38;5;109m[app-service-containers] [0m[0;36mterraform: [0m[31m│[0m [0m[1m[31mError: [0m[0m[1m[0mTerraform encountered problems during initialisation, including problems[0m
+[0;90m16:05:04.794[0m [0;31mERROR [0m [0;38;5;109m[app-service-containers] [0m[0;36mterraform: [0m[31m│[0m [0mwith the configuration, described below.[0m
+[0;90m16:05:04.795[0m [0;31mERROR [0m [0;38;5;109m[app-service-containers] [0m[0;36mterraform: [0m[31m│[0m [0m[0m
+[0;90m16:05:04.795[0m [0;31mERROR [0m [0;38;5;109m[app-service-containers] [0m[0;36mterraform: [0m[31m│[0m [0mThe Terraform configuration must be valid before initialization so that[0m
+[0;90m16:05:04.795[0m [0;31mERROR [0m [0;38;5;109m[app-service-containers] [0m[0;36mterraform: [0m[31m│[0m [0mTerraform can determine which modules and providers need to be installed.[0m[0m[0m
+[0;90m16:05:04.795[0m [0;31mERROR [0m [0;38;5;109m[app-service-containers] [0m[0;36mterraform: [0m[31m│[0m [0m[0m
+[0;90m16:05:04.795[0m [0;31mERROR [0m [0;38;5;109m[app-service-containers] [0m[0;36mterraform: [0m[31m│[0m [0m[0m[0m
+[0;90m16:05:04.795[0m [0;31mERROR [0m [0;38;5;109m[app-service-containers] [0m[0;36mterraform: [0m[31m╵[0m[0m[0m
+[0;90m16:05:04.795[0m [0;31mERROR [0m [0;38;5;109m[app-service-containers] [0m[0;36mterraform: [0m[31m╷[0m[0m[0m
+[0;90m16:05:04.795[0m [0;31mERROR [0m [0;38;5;109m[app-service-containers] [0m[0;36mterraform: [0m[31m│[0m [0m[1m[31mError: [0m[0m[1mDuplicate 'backend' configuration block[0m[0m
+[0;90m16:05:04.795[0m [0;31mERROR [0m [0;38;5;109m[app-service-containers] [0m[0;36mterraform: [0m[31m│[0m [0m[0m
+[0;90m16:05:04.795[0m [0;31mERROR [0m [0;38;5;109m[app-service-containers] [0m[0;36mterraform: [0m[31m│[0m [0m[0m  on main.tf line 9, in terraform:[0m
+[0;90m16:05:04.795[0m [0;31mERROR [0m [0;38;5;109m[app-service-containers] [0m[0;36mterraform: [0m[31m│[0m [0m   9:   [4mbackend "azurerm"[0m {}[0m[0m
+[0;90m16:05:04.795[0m [0;31mERROR [0m [0;38;5;109m[app-service-containers] [0m[0;36mterraform: [0m[31m│[0m [0m[0m
+[0;90m16:05:04.795[0m [0;31mERROR [0m [0;38;5;109m[app-service-containers] [0m[0;36mterraform: [0m[31m│[0m [0mA module may have only one 'backend' configuration block. The backend was[0m
+[0;90m16:05:04.796[0m [0;31mERROR [0m [0;38;5;109m[app-service-containers] [0m[0;36mterraform: [0m[31m│[0m [0mpreviously configured at backend.tf:3,3-20.[0m
+[0;90m16:05:04.796[0m [0;31mERROR [0m [0;38;5;109m[app-service-containers] [0m[0;36mterraform: [0m[31m╵[0m[0m[0m
+[0;90m16:05:04.804[0m [0;31mERROR [0m [0;38;5;103m[redis-cache] [0m[0;36mterraform: [0m[31m╷[0m[0m[0m
+[0;90m16:05:04.804[0m [0;31mERROR [0m [0;38;5;103m[redis-cache] [0m[0;36mterraform: [0m[31m│[0m [0m[1m[31mError: [0m[0m[1m[0mTerraform encountered problems during initialisation, including problems[0m
+[0;90m16:05:04.804[0m [0;31mERROR [0m [0;38;5;103m[redis-cache] [0m[0;36mterraform: [0m[31m│[0m [0mwith the configuration, described below.[0m
+[0;90m16:05:04.804[0m [0;31mERROR [0m [0;38;5;103m[redis-cache] [0m[0;36mterraform: [0m[31m│[0m [0m[0m
+[0;90m16:05:04.804[0m [0;31mERROR [0m [0;38;5;103m[redis-cache] [0m[0;36mterraform: [0m[31m│[0m [0mThe Terraform configuration must be valid before initialization so that[0m
+[0;90m16:05:04.804[0m [0;31mERROR [0m [0;38;5;103m[redis-cache] [0m[0;36mterraform: [0m[31m│[0m [0mTerraform can determine which modules and providers need to be installed.[0m[0m[0m
+[0;90m16:05:04.805[0m [0;31mERROR [0m [0;38;5;103m[redis-cache] [0m[0;36mterraform: [0m[31m│[0m [0m[0m
+[0;90m16:05:04.805[0m [0;31mERROR [0m [0;38;5;103m[redis-cache] [0m[0;36mterraform: [0m[31m│[0m [0m[0m[0m
+[0;90m16:05:04.805[0m [0;31mERROR [0m [0;38;5;103m[redis-cache] [0m[0;36mterraform: [0m[31m╵[0m[0m[0m
+[0;90m16:05:04.805[0m [0;31mERROR [0m [0;38;5;103m[redis-cache] [0m[0;36mterraform: [0m[31m╷[0m[0m[0m
+[0;90m16:05:04.805[0m [0;31mERROR [0m [0;38;5;103m[redis-cache] [0m[0;36mterraform: [0m[31m│[0m [0m[1m[31mError: [0m[0m[1mDuplicate 'backend' configuration block[0m[0m
+[0;90m16:05:04.805[0m [0;31mERROR [0m [0;38;5;103m[redis-cache] [0m[0;36mterraform: [0m[31m│[0m [0m[0m
+[0;90m16:05:04.805[0m [0;31mERROR [0m [0;38;5;103m[redis-cache] [0m[0;36mterraform: [0m[31m│[0m [0m[0m  on main.tf line 9, in terraform:[0m
+[0;90m16:05:04.805[0m [0;31mERROR [0m [0;38;5;103m[redis-cache] [0m[0;36mterraform: [0m[31m│[0m [0m   9:   [4mbackend "azurerm"[0m {}[0m[0m
+[0;90m16:05:04.805[0m [0;31mERROR [0m [0;38;5;103m[redis-cache] [0m[0;36mterraform: [0m[31m│[0m [0m[0m
+[0;90m16:05:04.805[0m [0;31mERROR [0m [0;38;5;103m[redis-cache] [0m[0;36mterraform: [0m[31m│[0m [0mA module may have only one 'backend' configuration block. The backend was[0m
+[0;90m16:05:04.806[0m [0;31mERROR [0m [0;38;5;103m[redis-cache] [0m[0;36mterraform: [0m[31m│[0m [0mpreviously configured at backend.tf:3,3-20.[0m
+[0;90m16:05:04.806[0m [0;31mERROR [0m [0;38;5;103m[redis-cache] [0m[0;36mterraform: [0m[31m╵[0m[0m[0m
+[0;90m16:05:04.917[0m [0;31mERROR [0m [0;38;5;139m[storage-account] [0m[0;36mterraform: [0m[31m╷[0m[0m[0m
+[0;90m16:05:04.917[0m [0;31mERROR [0m [0;38;5;139m[storage-account] [0m[0;36mterraform: [0m[31m│[0m [0m[1m[31mError: [0m[0m[1m[0mTerraform encountered problems during initialisation, including problems[0m
+[0;90m16:05:04.918[0m [0;31mERROR [0m [0;38;5;139m[storage-account] [0m[0;36mterraform: [0m[31m│[0m [0mwith the configuration, described below.[0m
+[0;90m16:05:04.918[0m [0;31mERROR [0m [0;38;5;139m[storage-account] [0m[0;36mterraform: [0m[31m│[0m [0m[0m
+[0;90m16:05:04.918[0m [0;31mERROR [0m [0;38;5;139m[storage-account] [0m[0;36mterraform: [0m[31m│[0m [0mThe Terraform configuration must be valid before initialization so that[0m
+[0;90m16:05:04.918[0m [0;31mERROR [0m [0;38;5;139m[storage-account] [0m[0;36mterraform: [0m[31m│[0m [0mTerraform can determine which modules and providers need to be installed.[0m[0m[0m
+[0;90m16:05:04.918[0m [0;31mERROR [0m [0;38;5;139m[storage-account] [0m[0;36mterraform: [0m[31m│[0m [0m[0m
+[0;90m16:05:04.918[0m [0;31mERROR [0m [0;38;5;139m[storage-account] [0m[0;36mterraform: [0m[31m│[0m [0m[0m[0m
+[0;90m16:05:04.919[0m [0;31mERROR [0m [0;38;5;139m[storage-account] [0m[0;36mterraform: [0m[31m╵[0m[0m[0m
+[0;90m16:05:04.919[0m [0;31mERROR [0m [0;38;5;139m[storage-account] [0m[0;36mterraform: [0m[31m╷[0m[0m[0m
+[0;90m16:05:04.919[0m [0;31mERROR [0m [0;38;5;139m[storage-account] [0m[0;36mterraform: [0m[31m│[0m [0m[1m[31mError: [0m[0m[1mDuplicate 'backend' configuration block[0m[0m
+[0;90m16:05:04.919[0m [0;31mERROR [0m [0;38;5;139m[storage-account] [0m[0;36mterraform: [0m[31m│[0m [0m[0m
+[0;90m16:05:04.919[0m [0;31mERROR [0m [0;38;5;139m[storage-account] [0m[0;36mterraform: [0m[31m│[0m [0m[0m  on main.tf line 9, in terraform:[0m
+[0;90m16:05:04.919[0m [0;31mERROR [0m [0;38;5;139m[storage-account] [0m[0;36mterraform: [0m[31m│[0m [0m   9:   [4mbackend "azurerm"[0m {}[0m[0m
+[0;90m16:05:04.919[0m [0;31mERROR [0m [0;38;5;139m[storage-account] [0m[0;36mterraform: [0m[31m│[0m [0m[0m
+[0;90m16:05:04.919[0m [0;31mERROR [0m [0;38;5;139m[storage-account] [0m[0;36mterraform: [0m[31m│[0m [0mA module may have only one 'backend' configuration block. The backend was[0m
+[0;90m16:05:04.920[0m [0;31mERROR [0m [0;38;5;139m[storage-account] [0m[0;36mterraform: [0m[31m│[0m [0mpreviously configured at backend.tf:3,3-20.[0m
+[0;90m16:05:04.920[0m [0;31mERROR [0m [0;38;5;139m[storage-account] [0m[0;36mterraform: [0m[31m╵[0m[0m[0m
+[0;90m16:05:04.925[0m [0;31mERROR [0m Run failed: 13 errors occurred:
+
+* unit ./alerting did not run due to early exit
+
+* unit ./diagnostic-settings did not run due to early exit
+
+* Failed to execute "terraform plan -input=false -terragrunt-log-level debug" in .
+  [31m╷[0m[0m
+  [31m│[0m [0m[1m[31mError: [0m[0m[1mFailed to parse command-line flags[0m
+  [31m│[0m [0m
+  [31m│[0m [0m[0mflag provided but not defined: -terragrunt-log-level
+  [31m╵[0m[0m
+  [31m╷[0m[0m
+  [31m│[0m [0m[1m[31mError: [0m[0m[1mToo many command line arguments[0m
+  [31m│[0m [0m
+  [31m│[0m [0m[0mTo specify a working directory for the plan, use the global -chdir flag.
+  [31m╵[0m[0m
+  
+  For more help on using this command, run:
+    terraform plan -help
+  
+  exit status 1
+
+* Failed to execute "terraform plan -input=false -terragrunt-log-level debug" in ./acr/.terragrunt-cache/CT3Du1FQgwvLsD3st3ObTOaLB2o/kMnYD3mxOYnU_CbPVah_hzFmSbU/acr
+  [31m╷[0m[0m
+  [31m│[0m [0m[1m[31mError: [0m[0m[1mFailed to parse command-line flags[0m
+  [31m│[0m [0m
+  [31m│[0m [0m[0mflag provided but not defined: -terragrunt-log-level
+  [31m╵[0m[0m
+  [31m╷[0m[0m
+  [31m│[0m [0m[1m[31mError: [0m[0m[1mToo many command line arguments[0m
+  [31m│[0m [0m
+  [31m│[0m [0m[0mTo specify a working directory for the plan, use the global -chdir flag.
+  [31m╵[0m[0m
+  
+  For more help on using this command, run:
+    terraform plan -help
+  
+  exit status 1
+
+* Failed to execute "terraform init" in ./app-service/.terragrunt-cache/3jO_rOknw1zfk_wEK0MZwUjE4cg/kMnYD3mxOYnU_CbPVah_hzFmSbU/app-service
+  [31m╷[0m[0m
+  [31m│[0m [0m[1m[31mError: [0m[0m[1m[0mTerraform encountered problems during initialisation, including problems
+  [31m│[0m [0mwith the configuration, described below.
+  [31m│[0m [0m
+  [31m│[0m [0mThe Terraform configuration must be valid before initialization so that
+  [31m│[0m [0mTerraform can determine which modules and providers need to be installed.[0m[0m
+  [31m│[0m [0m
+  [31m│[0m [0m[0m
+  [31m╵[0m[0m
+  [31m╷[0m[0m
+  [31m│[0m [0m[1m[31mError: [0m[0m[1mDuplicate 'backend' configuration block[0m
+  [31m│[0m [0m
+  [31m│[0m [0m[0m  on main.tf line 9, in terraform:
+  [31m│[0m [0m   9:   [4mbackend "azurerm"[0m {}[0m
+  [31m│[0m [0m
+  [31m│[0m [0mA module may have only one 'backend' configuration block. The backend was
+  [31m│[0m [0mpreviously configured at backend.tf:3,3-20.
+  [31m╵[0m[0m
+  
+  exit status 1
+
+* Failed to execute "terraform init" in ./app-service-containers/.terragrunt-cache/auhJoJ67r5E-IXvvIIxkzNT62pE/kMnYD3mxOYnU_CbPVah_hzFmSbU/app-service-containers
+  [31m╷[0m[0m
+  [31m│[0m [0m[1m[31mError: [0m[0m[1m[0mTerraform encountered problems during initialisation, including problems
+  [31m│[0m [0mwith the configuration, described below.
+  [31m│[0m [0m
+  [31m│[0m [0mThe Terraform configuration must be valid before initialization so that
+  [31m│[0m [0mTerraform can determine which modules and providers need to be installed.[0m[0m
+  [31m│[0m [0m
+  [31m│[0m [0m[0m
+  [31m╵[0m[0m
+  [31m╷[0m[0m
+  [31m│[0m [0m[1m[31mError: [0m[0m[1mDuplicate 'backend' configuration block[0m
+  [31m│[0m [0m
+  [31m│[0m [0m[0m  on main.tf line 9, in terraform:
+  [31m│[0m [0m   9:   [4mbackend "azurerm"[0m {}[0m
+  [31m│[0m [0m
+  [31m│[0m [0mA module may have only one 'backend' configuration block. The backend was
+  [31m│[0m [0mpreviously configured at backend.tf:3,3-20.
+  [31m╵[0m[0m
+  
+  exit status 1
+
+* ./application-gateway/terragrunt.hcl:10,37-42: Unsupported attribute; This object does not have an attribute named "vnet".
+
+* Failed to execute "terraform init" in ./log-analytics/.terragrunt-cache/RVL1fWHlcAq5_Zn_P2MPd0P6Ieg/kMnYD3mxOYnU_CbPVah_hzFmSbU/log-analytics
+  [31m╷[0m[0m
+  [31m│[0m [0m[1m[31mError: [0m[0m[1m[0mTerraform encountered problems during initialisation, including problems
+  [31m│[0m [0mwith the configuration, described below.
+  [31m│[0m [0m
+  [31m│[0m [0mThe Terraform configuration must be valid before initialization so that
+  [31m│[0m [0mTerraform can determine which modules and providers need to be installed.[0m[0m
+  [31m│[0m [0m
+  [31m│[0m [0m[0m
+  [31m╵[0m[0m
+  [31m╷[0m[0m
+  [31m│[0m [0m[1m[31mError: [0m[0m[1mDuplicate 'backend' configuration block[0m
+  [31m│[0m [0m
+  [31m│[0m [0m[0m  on main.tf line 9, in terraform:
+  [31m│[0m [0m   9:   [4mbackend "azurerm"[0m {}[0m
+  [31m│[0m [0m
+  [31m│[0m [0mA module may have only one 'backend' configuration block. The backend was
+  [31m│[0m [0mpreviously configured at backend.tf:3,3-20.
+  [31m╵[0m[0m
+  
+  exit status 1
+
+* Failed to execute "terraform init" in ./redis-cache/.terragrunt-cache/jvzHFReYvQKlcuae0bj5yG35cd8/kMnYD3mxOYnU_CbPVah_hzFmSbU/redis-cache
+  [31m╷[0m[0m
+  [31m│[0m [0m[1m[31mError: [0m[0m[1m[0mTerraform encountered problems during initialisation, including problems
+  [31m│[0m [0mwith the configuration, described below.
+  [31m│[0m [0m
+  [31m│[0m [0mThe Terraform configuration must be valid before initialization so that
+  [31m│[0m [0mTerraform can determine which modules and providers need to be installed.[0m[0m
+  [31m│[0m [0m
+  [31m│[0m [0m[0m
+  [31m╵[0m[0m
+  [31m╷[0m[0m
+  [31m│[0m [0m[1m[31mError: [0m[0m[1mDuplicate 'backend' configuration block[0m
+  [31m│[0m [0m
+  [31m│[0m [0m[0m  on main.tf line 9, in terraform:
+  [31m│[0m [0m   9:   [4mbackend "azurerm"[0m {}[0m
+  [31m│[0m [0m
+  [31m│[0m [0mA module may have only one 'backend' configuration block. The backend was
+  [31m│[0m [0mpreviously configured at backend.tf:3,3-20.
+  [31m╵[0m[0m
+  
+  exit status 1
+
+* Failed to execute "terraform init" in ./sql-database/.terragrunt-cache/Z8e_xD0dNYJ2KpqM0S9hv9hLUjU/kMnYD3mxOYnU_CbPVah_hzFmSbU/sql-database
+  [31m╷[0m[0m
+  [31m│[0m [0m[1m[31mError: [0m[0m[1m[0mTerraform encountered problems during initialisation, including problems
+  [31m│[0m [0mwith the configuration, described below.
+  [31m│[0m [0m
+  [31m│[0m [0mThe Terraform configuration must be valid before initialization so that
+  [31m│[0m [0mTerraform can determine which modules and providers need to be installed.[0m[0m
+  [31m│[0m [0m
+  [31m│[0m [0m[0m
+  [31m╵[0m[0m
+  [31m╷[0m[0m
+  [31m│[0m [0m[1m[31mError: [0m[0m[1mDuplicate 'backend' configuration block[0m
+  [31m│[0m [0m
+  [31m│[0m [0m[0m  on main.tf line 9, in terraform:
+  [31m│[0m [0m   9:   [4mbackend "azurerm"[0m {}[0m
+  [31m│[0m [0m
+  [31m│[0m [0mA module may have only one 'backend' configuration block. The backend was
+  [31m│[0m [0mpreviously configured at backend.tf:3,3-20.
+  [31m╵[0m[0m
+  
+  exit status 1
+
+* Failed to execute "terraform init" in ./storage-account/.terragrunt-cache/nXkysa5UkdaaJC4mlGXFVoK5vMI/kMnYD3mxOYnU_CbPVah_hzFmSbU/storage-account
+  [31m╷[0m[0m
+  [31m│[0m [0m[1m[31mError: [0m[0m[1m[0mTerraform encountered problems during initialisation, including problems
+  [31m│[0m [0mwith the configuration, described below.
+  [31m│[0m [0m
+  [31m│[0m [0mThe Terraform configuration must be valid before initialization so that
+  [31m│[0m [0mTerraform can determine which modules and providers need to be installed.[0m[0m
+  [31m│[0m [0m
+  [31m│[0m [0m[0m
+  [31m╵[0m[0m
+  [31m╷[0m[0m
+  [31m│[0m [0m[1m[31mError: [0m[0m[1mDuplicate 'backend' configuration block[0m
+  [31m│[0m [0m
+  [31m│[0m [0m[0m  on main.tf line 9, in terraform:
+  [31m│[0m [0m   9:   [4mbackend "azurerm"[0m {}[0m
+  [31m│[0m [0m
+  [31m│[0m [0mA module may have only one 'backend' configuration block. The backend was
+  [31m│[0m [0mpreviously configured at backend.tf:3,3-20.
+  [31m╵[0m[0m
+  
+  exit status 1
+
+* Failed to execute "terraform init" in ./vnet/.terragrunt-cache/IKqKaTRmxLgZPhJMp9YbNotmVFo/kMnYD3mxOYnU_CbPVah_hzFmSbU/vnet
+  [31m╷[0m[0m
+  [31m│[0m [0m[1m[31mError: [0m[0m[1m[0mTerraform encountered problems during initialisation, including problems
+  [31m│[0m [0mwith the configuration, described below.
+  [31m│[0m [0m
+  [31m│[0m [0mThe Terraform configuration must be valid before initialization so that
+  [31m│[0m [0mTerraform can determine which modules and providers need to be installed.[0m[0m
+  [31m│[0m [0m
+  [31m│[0m [0m[0m
+  [31m╵[0m[0m
+  [31m╷[0m[0m
+  [31m│[0m [0m[1m[31mError: [0m[0m[1mDuplicate 'backend' configuration block[0m
+  [31m│[0m [0m
+  [31m│[0m [0m[0m  on main.tf line 9, in terraform:
+  [31m│[0m [0m   9:   [4mbackend "azurerm"[0m {}[0m
+  [31m│[0m [0m
+  [31m│[0m [0mA module may have only one 'backend' configuration block. The backend was
+  [31m│[0m [0mpreviously configured at backend.tf:3,3-20.
+  [31m╵[0m[0m
+  
+  exit status 1
+
+* ./vpn-gateway/terragrunt.hcl:10,44-49: Unsupported attribute; This object does not have an attribute named "vnet".
+
+
+❯❯ Run Summary  13 units  3s
+   ────────────────────────────
+   Failed       11
+   Early Exits  2
+
