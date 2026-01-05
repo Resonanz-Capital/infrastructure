@@ -1,0 +1,415 @@
+# Azure DevOps Pipeline for Terraform/Terragrunt Azure Infrastructure
+
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+  paths:
+    include:
+      - "**/*.tf"
+      - "**/*.hcl"
+      - "**/terragrunt.hcl"
+
+pr:
+  branches:
+    include:
+      - main
+      - develop
+  paths:
+    include:
+      - "**/*.tf"
+      - "**/*.hcl"
+      - "**/terragrunt.hcl"
+
+variables:
+  - name: terraformVersion
+    value: "1.5.7"
+  - name: terragruntVersion
+    value: "0.55.1"
+  - name: azureSubscription
+    value: "your-azure-subscription-name" # Update this with your actual subscription name
+
+stages:
+  - stage: validate
+    displayName: "Validate"
+    jobs:
+      - job: validate
+        displayName: "Validate Terraform Code"
+        pool:
+          vmImage: "ubuntu-latest"
+
+        steps:
+          - checkout: self
+            persistCredentials: true
+
+          - task: TerraformInstaller@0
+            displayName: "Install Terraform"
+            inputs:
+              terraformVersion: $(terraformVersion)
+
+          - task: TerraformTaskV4@4
+            displayName: "Terraform Format Check"
+            inputs:
+              provider: "azurerm"
+              command: "custom"
+              customCommand: "fmt"
+              arguments: "-check -recursive"
+              workingDirectory: "$(System.DefaultWorkingDirectory)"
+
+          - task: TerraformTaskV4@4
+            displayName: "Terraform Validate"
+            inputs:
+              provider: "azurerm"
+              command: "custom"
+              customCommand: "validate"
+              workingDirectory: "$(System.DefaultWorkingDirectory)"
+
+          - script: |
+              echo "Installing Terragrunt $(terragruntVersion)..."
+              wget -O terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v$(terragruntVersion)/terragrunt_linux_amd64
+              chmod +x terragrunt
+              sudo mv terragrunt /usr/local/bin/
+              terragrunt --version
+            displayName: "Install Terragrunt"
+
+          - script: |
+              bash validate.sh
+            displayName: "Run Validation Script"
+
+  - stage: plan_dev
+    displayName: "Plan Dev Environment"
+    dependsOn: validate
+    condition: succeeded()
+    jobs:
+      - deployment: plan_dev
+        displayName: "Plan Dev Infrastructure"
+        environment: "dev-approval"
+        pool:
+          vmImage: "ubuntu-latest"
+
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                  persistCredentials: true
+
+                - task: AzureCLI@2
+                  displayName: "Azure CLI Login"
+                  inputs:
+                    azureSubscription: $(azureSubscription)
+                    scriptType: "bash"
+                    scriptLocation: "inlineScript"
+                    inlineScript: |
+                      az account show
+
+                - task: TerraformInstaller@0
+                  displayName: "Install Terraform"
+                  inputs:
+                    terraformVersion: $(terraformVersion)
+
+                - script: |
+                    echo "Installing Terragrunt $(terragruntVersion)..."
+                    wget -O terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v$(terragruntVersion)/terragrunt_linux_amd64
+                    chmod +x terragrunt
+                    sudo mv terragrunt /usr/local/bin/
+                    terragrunt --version
+                  displayName: "Install Terragrunt"
+
+                - script: |
+                    cd live/1.\ dev
+                    terragrunt init
+                    terragrunt plan -out=tfplan
+                  displayName: "Terragrunt Plan Dev"
+
+                - task: PublishBuildArtifacts@1
+                  displayName: "Publish Plan Artifacts"
+                  inputs:
+                    PathtoPublish: "live/1. dev/tfplan"
+                    ArtifactName: "dev-plan"
+                    publishLocation: "Container"
+
+  - stage: plan_stage
+    displayName: "Plan Stage Environment"
+    dependsOn: plan_dev
+    condition: succeeded()
+    jobs:
+      - deployment: plan_stage
+        displayName: "Plan Stage Infrastructure"
+        environment: "stage-approval"
+        pool:
+          vmImage: "ubuntu-latest"
+
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                  persistCredentials: true
+
+                - task: AzureCLI@2
+                  displayName: "Azure CLI Login"
+                  inputs:
+                    azureSubscription: $(azureSubscription)
+                    scriptType: "bash"
+                    scriptLocation: "inlineScript"
+                    inlineScript: |
+                      az account show
+
+                - task: TerraformInstaller@0
+                  displayName: "Install Terraform"
+                  inputs:
+                    terraformVersion: $(terraformVersion)
+
+                - script: |
+                    echo "Installing Terragrunt $(terragruntVersion)..."
+                    wget -O terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v$(terragruntVersion)/terragrunt_linux_amd64
+                    chmod +x terragrunt
+                    sudo mv terragrunt /usr/local/bin/
+                    terragrunt --version
+                  displayName: "Install Terragrunt"
+
+                - script: |
+                    cd live/2.\ stage
+                    terragrunt init
+                    terragrunt plan -out=tfplan
+                  displayName: "Terragrunt Plan Stage"
+
+                - task: PublishBuildArtifacts@1
+                  displayName: "Publish Plan Artifacts"
+                  inputs:
+                    PathtoPublish: "live/2. stage/tfplan"
+                    ArtifactName: "stage-plan"
+                    publishLocation: "Container"
+
+  - stage: plan_prod
+    displayName: "Plan Prod Environment"
+    dependsOn: plan_stage
+    condition: succeeded()
+    jobs:
+      - deployment: plan_prod
+        displayName: "Plan Prod Infrastructure"
+        environment: "prod-approval"
+        pool:
+          vmImage: "ubuntu-latest"
+
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                  persistCredentials: true
+
+                - task: AzureCLI@2
+                  displayName: "Azure CLI Login"
+                  inputs:
+                    azureSubscription: $(azureSubscription)
+                    scriptType: "bash"
+                    scriptLocation: "inlineScript"
+                    inlineScript: |
+                      az account show
+
+                - task: TerraformInstaller@0
+                  displayName: "Install Terraform"
+                  inputs:
+                    terraformVersion: $(terraformVersion)
+
+                - script: |
+                    echo "Installing Terragrunt $(terragruntVersion)..."
+                    wget -O terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v$(terragruntVersion)/terragrunt_linux_amd64
+                    chmod +x terragrunt
+                    sudo mv terragrunt /usr/local/bin/
+                    terragrunt --version
+                  displayName: "Install Terragrunt"
+
+                - script: |
+                    cd live/3.\ prod
+                    terragrunt init
+                    terragrunt plan -out=tfplan
+                  displayName: "Terragrunt Plan Prod"
+
+                - task: PublishBuildArtifacts@1
+                  displayName: "Publish Plan Artifacts"
+                  inputs:
+                    PathtoPublish: "live/3. prod/tfplan"
+                    ArtifactName: "prod-plan"
+                    publishLocation: "Container"
+
+  - stage: apply_dev
+    displayName: "Apply Dev Environment"
+    dependsOn: plan_prod
+    condition: succeeded()
+    jobs:
+      - deployment: apply_dev
+        displayName: "Apply Dev Infrastructure"
+        environment: "dev-apply"
+        pool:
+          vmImage: "ubuntu-latest"
+
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                  persistCredentials: true
+
+                - task: DownloadBuildArtifacts@0
+                  displayName: "Download Dev Plan"
+                  inputs:
+                    downloadType: "single"
+                    artifactName: "dev-plan"
+                    downloadPath: "$(System.DefaultWorkingDirectory)"
+
+                - task: AzureCLI@2
+                  displayName: "Azure CLI Login"
+                  inputs:
+                    azureSubscription: $(azureSubscription)
+                    scriptType: "bash"
+                    scriptLocation: "inlineScript"
+                    inlineScript: |
+                      az account show
+
+                - task: TerraformInstaller@0
+                  displayName: "Install Terraform"
+                  inputs:
+                    terraformVersion: $(terraformVersion)
+
+                - script: |
+                    echo "Installing Terragrunt $(terragruntVersion)..."
+                    wget -O terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v$(terragruntVersion)/terragrunt_linux_amd64
+                    chmod +x terragrunt
+                    sudo mv terragrunt /usr/local/bin/
+                    terragrunt --version
+                  displayName: "Install Terragrunt"
+
+                - script: |
+                    cd live/1.\ dev
+                    terragrunt apply tfplan
+                  displayName: "Terragrunt Apply Dev"
+
+  - stage: apply_stage
+    displayName: "Apply Stage Environment"
+    dependsOn: apply_dev
+    condition: succeeded()
+    jobs:
+      - deployment: apply_stage
+        displayName: "Apply Stage Infrastructure"
+        environment: "stage-apply"
+        pool:
+          vmImage: "ubuntu-latest"
+
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                  persistCredentials: true
+
+                - task: DownloadBuildArtifacts@0
+                  displayName: "Download Stage Plan"
+                  inputs:
+                    downloadType: "single"
+                    artifactName: "stage-plan"
+                    downloadPath: "$(System.DefaultWorkingDirectory)"
+
+                - task: AzureCLI@2
+                  displayName: "Azure CLI Login"
+                  inputs:
+                    azureSubscription: $(azureSubscription)
+                    scriptType: "bash"
+                    scriptLocation: "inlineScript"
+                    inlineScript: |
+                      az account show
+
+                - task: TerraformInstaller@0
+                  displayName: "Install Terraform"
+                  inputs:
+                    terraformVersion: $(terraformVersion)
+
+                - script: |
+                    echo "Installing Terragrunt $(terragruntVersion)..."
+                    wget -O terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v$(terragruntVersion)/terragrunt_linux_amd64
+                    chmod +x terragrunt
+                    sudo mv terragrunt /usr/local/bin/
+                    terragrunt --version
+                  displayName: "Install Terragrunt"
+
+                - script: |
+                    cd live/2.\ stage
+                    terragrunt apply tfplan
+                  displayName: "Terragrunt Apply Stage"
+
+  - stage: apply_prod
+    displayName: "Apply Prod Environment"
+    dependsOn: apply_stage
+    condition: succeeded()
+    jobs:
+      - deployment: apply_prod
+        displayName: "Apply Prod Infrastructure"
+        environment: "prod-apply"
+        pool:
+          vmImage: "ubuntu-latest"
+
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                  persistCredentials: true
+
+                - task: DownloadBuildArtifacts@0
+                  displayName: "Download Prod Plan"
+                  inputs:
+                    downloadType: "single"
+                    artifactName: "prod-plan"
+                    downloadPath: "$(System.DefaultWorkingDirectory)"
+
+                - task: AzureCLI@2
+                  displayName: "Azure CLI Login"
+                  inputs:
+                    azureSubscription: $(azureSubscription)
+                    scriptType: "bash"
+                    scriptLocation: "inlineScript"
+                    inlineScript: |
+                      az account show
+
+                - task: TerraformInstaller@0
+                  displayName: "Install Terraform"
+                  inputs:
+                    terraformVersion: $(terraformVersion)
+
+                - script: |
+                    echo "Installing Terragrunt $(terragruntVersion)..."
+                    wget -O terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v$(terragruntVersion)/terragrunt_linux_amd64
+                    chmod +x terragrunt
+                    sudo mv terragrunt /usr/local/bin/
+                    terragrunt --version
+                  displayName: "Install Terragrunt"
+
+                - script: |
+                    cd live/3.\ prod
+                    terragrunt apply tfplan
+                  displayName: "Terragrunt Apply Prod"
+
+  - stage: cleanup
+    displayName: "Cleanup"
+    dependsOn:
+      - apply_dev
+      - apply_stage
+      - apply_prod
+    condition: always()
+    jobs:
+      - job: cleanup
+        displayName: "Clean up cache and temporary files"
+        pool:
+          vmImage: "ubuntu-latest"
+
+        steps:
+          - checkout: none
+
+          - script: |
+              echo "Running cleanup script..."
+              # Add cleanup commands here if needed
+              echo "Cleanup completed"
+            displayName: "Run Cleanup"
