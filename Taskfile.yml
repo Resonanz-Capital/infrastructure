@@ -1,0 +1,78 @@
+version: "3"
+
+vars:
+  ENV: dev
+
+tasks:
+  default:
+    cmds:
+      - task: help
+
+  help:
+    desc: Show help message
+    cmds:
+      - echo "Terraform/Terragrunt Azure Infrastructure Taskfile"
+      - echo ""
+      - echo "Usage:"
+      - echo "  task [command]"
+      - echo ""
+      - echo "Commands:"
+      - echo "  help            Show this help message"
+      - echo "  validate        Validate the Terraform configuration"
+      - echo "  fmt             Format Terraform configuration files"
+      - echo "  init            Initialize Terragrunt"
+      - echo "  plan            Plan the infrastructure"
+      - echo "  apply           Apply the infrastructure"
+      - echo "  destroy         Destroy the infrastructure"
+      - echo "  clean           Clean up Terraform files"
+      - echo ""
+      - echo "Environment variables:"
+      - echo "  ENV=dev         Environment to use (dev, stage, prod)"
+
+  validate:
+    desc: Validate the Terraform configuration
+    cmds:
+      - echo "Validating Terraform configuration..."
+      - terraform fmt -check
+      - terraform validate
+
+  fmt:
+    desc: Format Terraform configuration files
+    cmds:
+      - echo "Formatting Terraform configuration files..."
+      - terraform fmt -recursive
+
+  init:
+    desc: Initialize Terragrunt
+    cmds:
+      - echo "Initializing Terragrunt for {{.ENV}} environment..."
+      - cd live/{{.ENV}} && terragrunt init
+
+  plan:
+    desc: Plan the infrastructure
+    cmds:
+      - echo "Planning infrastructure for {{.ENV}} environment..."
+      - cd live/{{.ENV}} && terragrunt plan
+
+  apply:
+    desc: Apply the infrastructure
+    cmds:
+      - echo "Applying infrastructure for {{.ENV}} environment..."
+      - cd live/{{.ENV}} && terragrunt apply -auto-approve
+
+  destroy:
+    desc: Destroy the infrastructure
+    cmds:
+      - echo "Destroying infrastructure for {{.ENV}} environment..."
+      - cd live/{{.ENV}} && terragrunt destroy -auto-approve
+
+  clean:
+    desc: Clean up Terraform files
+    cmds:
+      - echo "Cleaning up Terraform files..."
+      - find . -type d -name ".terraform" -exec rm -rf {} +
+      - find . -type f -name ".terraform.lock.hcl" -delete
+      - find . -type f -name "terraform.tfstate" -delete
+      - find . -type f -name "terraform.tfstate.backup" -delete
+      - find . -type f -name "*.tfplan" -delete
+      - rm -rf .terragrunt-cache

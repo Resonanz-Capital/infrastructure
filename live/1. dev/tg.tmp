@@ -1,0 +1,38 @@
+[0;90m15:45:29.631[0m [0;37mSTDOUT[0m [0;38;5;95m[acr] [0m[0;36mterraform: [0m[0m[1mInitializing the backend...[0m[0m
+[0;90m15:45:29.631[0m [0;37mSTDOUT[0m [0;38;5;96m[redis-cache] [0m[0;36mterraform: [0m[0m[1mInitializing the backend...[0m[0m
+[0;90m15:45:29.632[0m [0;37mSTDOUT[0m [0;38;5;102m[app-service-containers] [0m[0;36mterraform: [0m[0m[1mInitializing the backend...[0m[0m
+[0;90m15:45:29.633[0m [0;37mSTDOUT[0m [0;38;5;103m[vnet] [0m[0;36mterraform: [0m[0m[1mInitializing the backend...[0m[0m
+[0;90m15:45:29.633[0m [0;37mSTDOUT[0m [0;38;5;108m[app-service] [0m[0;36mterraform: [0m[0m[1mInitializing the backend...[0m[0m
+[0;90m15:45:29.635[0m [0;37mSTDOUT[0m [0;38;5;109m[sql-database] [0m[0;36mterraform: [0m[0m[1mInitializing the backend...[0m[0m
+[0;90m15:45:29.636[0m [0;37mSTDOUT[0m [0;36mterraform: [0m[0m[1mInitializing the backend...[0m[0m
+[0;90m15:45:29.636[0m [0;37mSTDOUT[0m [0;38;5;138m[log-analytics] [0m[0;36mterraform: [0m[0m[1mInitializing the backend...[0m[0m
+[0;90m15:45:29.640[0m [0;37mSTDOUT[0m [0;38;5;139m[storage-account] [0m[0;36mterraform: [0m[0m[1mInitializing the backend...[0m[0m
+[0;90m15:45:33.489[0m [0;37mSTDOUT[0m [0;36mterraform: [0m[0m[1mInitializing provider plugins...[0m[0m
+[0;90m15:45:33.489[0m [0;37mSTDOUT[0m [0;36mterraform: [0m- Reusing previous version of hashicorp/azurerm from the dependency lock file
+[0;90m15:45:33.546[0m [0;37mSTDOUT[0m [0;38;5;95m[acr] [0m[0;36mterraform: [0m[0m[1mInitializing provider plugins...[0m[0m
+[0;90m15:45:33.546[0m [0;37mSTDOUT[0m [0;38;5;95m[acr] [0m[0;36mterraform: [0m- Reusing previous version of hashicorp/azurerm from the dependency lock file
+[0;90m15:45:34.275[0m [0;37mSTDOUT[0m [0;36mterraform: [0m- Using previously-installed hashicorp/azurerm v4.56.0
+[0;90m15:45:34.276[0m [0;37mSTDOUT[0m [0;36mterraform: [0m[0m[1m[32mTerraform has been successfully initialized![0m[32m[0m[0m
+[0;90m15:45:34.276[0m [0;37mSTDOUT[0m [0;36mterraform: [0m[0m[32m[0m
+[0;90m15:45:34.276[0m [0;37mSTDOUT[0m [0;36mterraform: [0mYou may now begin working with Terraform. Try running "terraform plan" to see
+[0;90m15:45:34.276[0m [0;37mSTDOUT[0m [0;36mterraform: [0many changes that are required for your infrastructure. All Terraform commands
+[0;90m15:45:34.276[0m [0;37mSTDOUT[0m [0;36mterraform: [0mshould now work.
+[0;90m15:45:34.277[0m [0;37mSTDOUT[0m [0;36mterraform: [0mIf you ever set or change modules or backend configuration for Terraform,
+[0;90m15:45:34.277[0m [0;37mSTDOUT[0m [0;36mterraform: [0mrerun this command to reinitialize your working directory. If you forget, other
+[0;90m15:45:34.277[0m [0;37mSTDOUT[0m [0;36mterraform: [0mcommands will detect it and remind you to do so if necessary.[0m[0m
+[0;90m15:45:34.362[0m [0;37mSTDOUT[0m [0;38;5;95m[acr] [0m[0;36mterraform: [0m- Using previously-installed hashicorp/azurerm v3.117.1
+[0;90m15:45:34.363[0m [0;37mSTDOUT[0m [0;38;5;95m[acr] [0m[0;36mterraform: [0m[0m[1m[32mTerraform has been successfully initialized![0m[32m[0m[0m
+[0;90m15:45:34.363[0m [0;37mSTDOUT[0m [0;38;5;95m[acr] [0m[0;36mterraform: [0m[0m[32m[0m
+[0;90m15:45:34.363[0m [0;37mSTDOUT[0m [0;38;5;95m[acr] [0m[0;36mterraform: [0mYou may now begin working with Terraform. Try running "terraform plan" to see
+[0;90m15:45:34.363[0m [0;37mSTDOUT[0m [0;38;5;95m[acr] [0m[0;36mterraform: [0many changes that are required for your infrastructure. All Terraform commands
+[0;90m15:45:34.363[0m [0;37mSTDOUT[0m [0;38;5;95m[acr] [0m[0;36mterraform: [0mshould now work.
+[0;90m15:45:34.363[0m [0;37mSTDOUT[0m [0;38;5;95m[acr] [0m[0;36mterraform: [0mIf you ever set or change modules or backend configuration for Terraform,
+[0;90m15:45:34.363[0m [0;37mSTDOUT[0m [0;38;5;95m[acr] [0m[0;36mterraform: [0mrerun this command to reinitialize your working directory. If you forget, other
+[0;90m15:45:34.364[0m [0;37mSTDOUT[0m [0;38;5;95m[acr] [0m[0;36mterraform: [0mcommands will detect it and remind you to do so if necessary.[0m[0m
+
+❯❯ Run Summary  13 units  4s
+   ────────────────────────────
+   Succeeded    2
+   Failed       9
+   Early Exits  2
+
