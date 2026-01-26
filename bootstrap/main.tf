@@ -40,8 +40,11 @@ resource "azurerm_resource_group" "tfstate" {
   location = var.location
 
   tags = {
-    Purpose   = "Terraform State Storage"
-    ManagedBy = "Terraform Bootstrap"
+    Environment = "Sandbox"
+    Owner       = "stoyan.stoyanov@sirma.com"
+    CostCenter  = "Sandbox-Owners"
+    Purpose     = "Terraform State Storage"
+    ManagedBy   = "Terraform Bootstrap"
   }
 }
 
@@ -69,8 +72,11 @@ resource "azurerm_storage_account" "tfstate" {
   allow_nested_items_to_be_public = false
 
   tags = {
-    Purpose   = "Terraform State Storage"
-    ManagedBy = "Terraform Bootstrap"
+    Environment = "Sandbox"
+    Owner       = "stoyan.stoyanov@sirma.com"
+    CostCenter  = "Sandbox-Owners"
+    Purpose     = "Terraform State Storage"
+    ManagedBy   = "Terraform Bootstrap"
   }
 }
 
