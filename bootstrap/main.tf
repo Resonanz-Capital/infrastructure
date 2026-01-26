@@ -17,10 +17,8 @@ provider "azurerm" {
   features {}
 
   # Explicitly use "Azure subscription 1"
-  subscription_id = "6ab2e1b8-b57e-4fbb-8c05-12629a7ddcf7"
+  subscription_id = "6346877f-9b0c-4549-aa42-65062902ebdd"
 
-  # Skip automatic resource provider registration (works in older versions)
-  skip_provider_registration = true
 }
 
 # Generate unique suffix for storage account name
