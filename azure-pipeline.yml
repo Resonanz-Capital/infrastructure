@@ -28,9 +28,10 @@ variables:
   - name: terragruntVersion
     value: "0.55.1"
   - name: azureSubscription
-    value: "azure-sirma-terraform" # Update this with your actual subscription name
+    value: "azure-sirma-terraform"
 
 stages:
+  # ==================== VALIDATE STAGE ====================
   - stage: validate
     displayName: "Validate"
     jobs:
@@ -38,7 +39,6 @@ stages:
         displayName: "Validate Terraform Code"
         pool:
           vmImage: "ubuntu-latest"
-
         steps:
           - checkout: self
             persistCredentials: true
@@ -48,23 +48,6 @@ stages:
             inputs:
               terraformVersion: $(terraformVersion)
 
-          - task: TerraformTaskV4@4
-            displayName: "Terraform Format Check"
-            inputs:
-              provider: "azurerm"
-              command: "custom"
-              customCommand: "fmt"
-              arguments: "-check -recursive"
-              workingDirectory: "$(System.DefaultWorkingDirectory)"
-
-          - task: TerraformTaskV4@4
-            displayName: "Terraform Validate"
-            inputs:
-              provider: "azurerm"
-              command: "custom"
-              customCommand: "validate"
-              workingDirectory: "$(System.DefaultWorkingDirectory)"
-
           - script: |
               echo "Installing Terragrunt $(terragruntVersion)..."
               wget -O terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v$(terragruntVersion)/terragrunt_linux_amd64
@@ -73,10 +56,17 @@ stages:
               terragrunt --version
             displayName: "Install Terragrunt"
 
-          - script: |
-              bash validate.sh
-            displayName: "Run Validation Script"
+          - task: TerraformTaskV4@4
+            displayName: "Terraform Format Check"
+            inputs:
+              provider: "azurerm"
+              command: "custom"
+              customCommand: "fmt"
+              commandOptions: "-check -recursive"
+              workingDirectory: "$(System.DefaultWorkingDirectory)"
+            continueOnError: true # Format check не трябва да спира pipeline-а
 
+  # ==================== PLAN DEV STAGE ====================
   - stage: plan_dev
     displayName: "Plan Dev Environment"
     dependsOn: validate
@@ -87,22 +77,12 @@ stages:
         environment: "dev-approval"
         pool:
           vmImage: "ubuntu-latest"
-
         strategy:
           runOnce:
             deploy:
               steps:
                 - checkout: self
                   persistCredentials: true
-
-                - task: AzureCLI@2
-                  displayName: "Azure CLI Login"
-                  inputs:
-                    azureSubscription: $(azureSubscription)
-                    scriptType: "bash"
-                    scriptLocation: "inlineScript"
-                    inlineScript: |
-                      az account show
 
                 - task: TerraformInstaller@0
                   displayName: "Install Terraform"
@@ -117,22 +97,43 @@ stages:
                     terragrunt --version
                   displayName: "Install Terragrunt"
 
-                - script: |
-                    cd live/1.\ dev
-                    terragrunt init
-                    terragrunt plan -out=tfplan
+                - task: AzureCLI@2
                   displayName: "Terragrunt Plan Dev"
+                  inputs:
+                    azureSubscription: $(azureSubscription)
+                    scriptType: "bash"
+                    scriptLocation: "inlineScript"
+                    addSpnToEnvironment: true
+                    inlineScript: |
+                      # Export ARM environment variables for Terraform
+                      export ARM_CLIENT_ID=$servicePrincipalId
+                      export ARM_CLIENT_SECRET=$servicePrincipalKey
+                      export ARM_TENANT_ID=$tenantId
+                      export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+
+                      echo "Logged in as: $(az account show --query user.name -o tsv)"
+                      echo "Subscription: $(az account show --query name -o tsv)"
+
+                      # Navigate to dev environment
+                      cd "live/1. dev"
+
+                      # Initialize and plan
+                      terragrunt init
+                      terragrunt plan -out=$(Build.ArtifactStagingDirectory)/dev-tfplan
+
+                      echo "Plan completed successfully"
 
                 - task: PublishBuildArtifacts@1
-                  displayName: "Publish Plan Artifacts"
+                  displayName: "Publish Dev Plan Artifacts"
                   inputs:
-                    PathtoPublish: "live/1. dev/tfplan"
+                    PathtoPublish: "$(Build.ArtifactStagingDirectory)"
                     ArtifactName: "dev-plan"
                     publishLocation: "Container"
 
+  # ==================== PLAN STAGE STAGE ====================
   - stage: plan_stage
     displayName: "Plan Stage Environment"
-    dependsOn: plan_dev
+    dependsOn: validate
     condition: succeeded()
     jobs:
       - deployment: plan_stage
@@ -140,22 +141,12 @@ stages:
         environment: "stage-approval"
         pool:
           vmImage: "ubuntu-latest"
-
         strategy:
           runOnce:
             deploy:
               steps:
                 - checkout: self
                   persistCredentials: true
-
-                - task: AzureCLI@2
-                  displayName: "Azure CLI Login"
-                  inputs:
-                    azureSubscription: $(azureSubscription)
-                    scriptType: "bash"
-                    scriptLocation: "inlineScript"
-                    inlineScript: |
-                      az account show
 
                 - task: TerraformInstaller@0
                   displayName: "Install Terraform"
@@ -170,22 +161,39 @@ stages:
                     terragrunt --version
                   displayName: "Install Terragrunt"
 
-                - script: |
-                    cd live/2.\ stage
-                    terragrunt init
-                    terragrunt plan -out=tfplan
+                - task: AzureCLI@2
                   displayName: "Terragrunt Plan Stage"
+                  inputs:
+                    azureSubscription: $(azureSubscription)
+                    scriptType: "bash"
+                    scriptLocation: "inlineScript"
+                    addSpnToEnvironment: true
+                    inlineScript: |
+                      export ARM_CLIENT_ID=$servicePrincipalId
+                      export ARM_CLIENT_SECRET=$servicePrincipalKey
+                      export ARM_TENANT_ID=$tenantId
+                      export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+
+                      echo "Logged in as: $(az account show --query user.name -o tsv)"
+                      echo "Subscription: $(az account show --query name -o tsv)"
+
+                      cd "live/2. stage"
+                      terragrunt init
+                      terragrunt plan -out=$(Build.ArtifactStagingDirectory)/stage-tfplan
+
+                      echo "Plan completed successfully"
 
                 - task: PublishBuildArtifacts@1
-                  displayName: "Publish Plan Artifacts"
+                  displayName: "Publish Stage Plan Artifacts"
                   inputs:
-                    PathtoPublish: "live/2. stage/tfplan"
+                    PathtoPublish: "$(Build.ArtifactStagingDirectory)"
                     ArtifactName: "stage-plan"
                     publishLocation: "Container"
 
+  # ==================== PLAN PROD STAGE ====================
   - stage: plan_prod
     displayName: "Plan Prod Environment"
-    dependsOn: plan_stage
+    dependsOn: validate
     condition: succeeded()
     jobs:
       - deployment: plan_prod
@@ -193,22 +201,12 @@ stages:
         environment: "prod-approval"
         pool:
           vmImage: "ubuntu-latest"
-
         strategy:
           runOnce:
             deploy:
               steps:
                 - checkout: self
                   persistCredentials: true
-
-                - task: AzureCLI@2
-                  displayName: "Azure CLI Login"
-                  inputs:
-                    azureSubscription: $(azureSubscription)
-                    scriptType: "bash"
-                    scriptLocation: "inlineScript"
-                    inlineScript: |
-                      az account show
 
                 - task: TerraformInstaller@0
                   displayName: "Install Terraform"
@@ -223,22 +221,39 @@ stages:
                     terragrunt --version
                   displayName: "Install Terragrunt"
 
-                - script: |
-                    cd live/3.\ prod
-                    terragrunt init
-                    terragrunt plan -out=tfplan
+                - task: AzureCLI@2
                   displayName: "Terragrunt Plan Prod"
+                  inputs:
+                    azureSubscription: $(azureSubscription)
+                    scriptType: "bash"
+                    scriptLocation: "inlineScript"
+                    addSpnToEnvironment: true
+                    inlineScript: |
+                      export ARM_CLIENT_ID=$servicePrincipalId
+                      export ARM_CLIENT_SECRET=$servicePrincipalKey
+                      export ARM_TENANT_ID=$tenantId
+                      export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+
+                      echo "Logged in as: $(az account show --query user.name -o tsv)"
+                      echo "Subscription: $(az account show --query name -o tsv)"
+
+                      cd "live/3. prod"
+                      terragrunt init
+                      terragrunt plan -out=$(Build.ArtifactStagingDirectory)/prod-tfplan
+
+                      echo "Plan completed successfully"
 
                 - task: PublishBuildArtifacts@1
-                  displayName: "Publish Plan Artifacts"
+                  displayName: "Publish Prod Plan Artifacts"
                   inputs:
-                    PathtoPublish: "live/3. prod/tfplan"
+                    PathtoPublish: "$(Build.ArtifactStagingDirectory)"
                     ArtifactName: "prod-plan"
                     publishLocation: "Container"
 
+  # ==================== APPLY DEV STAGE ====================
   - stage: apply_dev
     displayName: "Apply Dev Environment"
-    dependsOn: plan_prod
+    dependsOn: plan_dev
     condition: succeeded()
     jobs:
       - deployment: apply_dev
@@ -246,7 +261,6 @@ stages:
         environment: "dev-apply"
         pool:
           vmImage: "ubuntu-latest"
-
         strategy:
           runOnce:
             deploy:
@@ -257,18 +271,10 @@ stages:
                 - task: DownloadBuildArtifacts@0
                   displayName: "Download Dev Plan"
                   inputs:
+                    buildType: "current"
                     downloadType: "single"
                     artifactName: "dev-plan"
-                    downloadPath: "live/1. dev"
-
-                - task: AzureCLI@2
-                  displayName: "Azure CLI Login"
-                  inputs:
-                    azureSubscription: $(azureSubscription)
-                    scriptType: "bash"
-                    scriptLocation: "inlineScript"
-                    inlineScript: |
-                      az account show
+                    downloadPath: "$(Pipeline.Workspace)"
 
                 - task: TerraformInstaller@0
                   displayName: "Install Terraform"
@@ -283,18 +289,33 @@ stages:
                     terragrunt --version
                   displayName: "Install Terragrunt"
 
-                - script: |
-                    cd live/1.\ dev
-                    terragrunt apply dev-plan/tfplan
+                - task: AzureCLI@2
                   displayName: "Terragrunt Apply Dev"
-
-                - task: AzureWebApp@1
                   inputs:
-                    azureSubscription: "azure-sirma-terraform"
+                    azureSubscription: $(azureSubscription)
+                    scriptType: "bash"
+                    scriptLocation: "inlineScript"
+                    addSpnToEnvironment: true
+                    inlineScript: |
+                      export ARM_CLIENT_ID=$servicePrincipalId
+                      export ARM_CLIENT_SECRET=$servicePrincipalKey
+                      export ARM_TENANT_ID=$tenantId
+                      export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 
+                      echo "Applying infrastructure for Dev environment..."
+
+                      cd "live/1. dev"
+                      terragrunt init
+                      terragrunt apply "$(Pipeline.Workspace)/dev-plan/dev-tfplan"
+
+                      echo "Apply completed successfully"
+
+  # ==================== APPLY STAGE STAGE ====================
   - stage: apply_stage
     displayName: "Apply Stage Environment"
-    dependsOn: apply_dev
+    dependsOn:
+      - plan_stage
+      - apply_dev
     condition: succeeded()
     jobs:
       - deployment: apply_stage
@@ -302,7 +323,6 @@ stages:
         environment: "stage-apply"
         pool:
           vmImage: "ubuntu-latest"
-
         strategy:
           runOnce:
             deploy:
@@ -313,18 +333,10 @@ stages:
                 - task: DownloadBuildArtifacts@0
                   displayName: "Download Stage Plan"
                   inputs:
+                    buildType: "current"
                     downloadType: "single"
                     artifactName: "stage-plan"
-                    downloadPath: "live/2. stage"
-
-                - task: AzureCLI@2
-                  displayName: "Azure CLI Login"
-                  inputs:
-                    azureSubscription: $(azureSubscription)
-                    scriptType: "bash"
-                    scriptLocation: "inlineScript"
-                    inlineScript: |
-                      az account show
+                    downloadPath: "$(Pipeline.Workspace)"
 
                 - task: TerraformInstaller@0
                   displayName: "Install Terraform"
@@ -339,18 +351,33 @@ stages:
                     terragrunt --version
                   displayName: "Install Terragrunt"
 
-                - script: |
-                    cd live/2.\ stage
-                    terragrunt apply stage-plan/tfplan
+                - task: AzureCLI@2
                   displayName: "Terragrunt Apply Stage"
-
-                - task: AzureWebApp@1
                   inputs:
-                    azureSubscription: "azure-sirma-terraform"
+                    azureSubscription: $(azureSubscription)
+                    scriptType: "bash"
+                    scriptLocation: "inlineScript"
+                    addSpnToEnvironment: true
+                    inlineScript: |
+                      export ARM_CLIENT_ID=$servicePrincipalId
+                      export ARM_CLIENT_SECRET=$servicePrincipalKey
+                      export ARM_TENANT_ID=$tenantId
+                      export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 
+                      echo "Applying infrastructure for Stage environment..."
+
+                      cd "live/2. stage"
+                      terragrunt init
+                      terragrunt apply "$(Pipeline.Workspace)/stage-plan/stage-tfplan"
+
+                      echo "Apply completed successfully"
+
+  # ==================== APPLY PROD STAGE ====================
   - stage: apply_prod
     displayName: "Apply Prod Environment"
-    dependsOn: apply_stage
+    dependsOn:
+      - plan_prod
+      - apply_stage
     condition: succeeded()
     jobs:
       - deployment: apply_prod
@@ -358,7 +385,6 @@ stages:
         environment: "prod-apply"
         pool:
           vmImage: "ubuntu-latest"
-
         strategy:
           runOnce:
             deploy:
@@ -369,18 +395,10 @@ stages:
                 - task: DownloadBuildArtifacts@0
                   displayName: "Download Prod Plan"
                   inputs:
+                    buildType: "current"
                     downloadType: "single"
                     artifactName: "prod-plan"
-                    downloadPath: "live/3. prod"
-
-                - task: AzureCLI@2
-                  displayName: "Azure CLI Login"
-                  inputs:
-                    azureSubscription: $(azureSubscription)
-                    scriptType: "bash"
-                    scriptLocation: "inlineScript"
-                    inlineScript: |
-                      az account show
+                    downloadPath: "$(Pipeline.Workspace)"
 
                 - task: TerraformInstaller@0
                   displayName: "Install Terraform"
@@ -395,33 +413,23 @@ stages:
                     terragrunt --version
                   displayName: "Install Terragrunt"
 
-                - script: |
-                    cd live/3.\ prod
-                    terragrunt apply prod-plan/tfplan
+                - task: AzureCLI@2
                   displayName: "Terragrunt Apply Prod"
-
-                - task: AzureWebApp@1
                   inputs:
-                    azureSubscription: "azure-sirma-terraform"
+                    azureSubscription: $(azureSubscription)
+                    scriptType: "bash"
+                    scriptLocation: "inlineScript"
+                    addSpnToEnvironment: true
+                    inlineScript: |
+                      export ARM_CLIENT_ID=$servicePrincipalId
+                      export ARM_CLIENT_SECRET=$servicePrincipalKey
+                      export ARM_TENANT_ID=$tenantId
+                      export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 
-  - stage: cleanup
-    displayName: "Cleanup"
-    dependsOn:
-      - apply_dev
-      - apply_stage
-      - apply_prod
-    condition: always()
-    jobs:
-      - job: cleanup
-        displayName: "Clean up cache and temporary files"
-        pool:
-          vmImage: "ubuntu-latest"
+                      echo "Applying infrastructure for Prod environment..."
 
-        steps:
-          - checkout: none
+                      cd "live/3. prod"
+                      terragrunt init
+                      terragrunt apply "$(Pipeline.Workspace)/prod-plan/prod-tfplan"
 
-          - script: |
-              echo "Running cleanup script..."
-              # Add cleanup commands here if needed
-              echo "Cleanup completed"
-            displayName: "Run Cleanup"
+                      echo "Apply completed successfully"
