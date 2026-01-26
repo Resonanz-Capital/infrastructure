@@ -21,20 +21,20 @@ provider "azurerm" {
 
 }
 
-# Check if resource group already exists
-data "external" "rg_exists" {
-  program = ["sh", "-c", "az group show --name ${var.resource_group_name} --query '{exists:true}' -o json 2>/dev/null || echo '{\"exists\": false}'"]
-}
-
 # Data source for existing resource group
 data "azurerm_resource_group" "existing" {
-  count = data.external.rg_exists.result.exists == "true" ? 1 : 0
-  name  = var.resource_group_name
+  name = var.resource_group_name
+}
+
+# Locals for resource group
+locals {
+  rg_exists  = try(data.azurerm_resource_group.existing.id, null) != null
+  rg_location = local.rg_exists ? data.azurerm_resource_group.existing.location : var.location
 }
 
 # Create resource group for Terraform state if it doesn't exist
 resource "azurerm_resource_group" "tfstate" {
-  count = data.external.rg_exists.result.exists == "true" ? 0 : 1
+  count = local.rg_exists ? 0 : 1
 
   name     = var.resource_group_name
   location = var.location
@@ -46,11 +46,6 @@ resource "azurerm_resource_group" "tfstate" {
     Purpose     = "Terraform State Storage"
     ManagedBy   = "Terraform Bootstrap"
   }
-}
-
-# Locals for resource group location
-locals {
-  rg_location = data.external.rg_exists.result.exists == "true" ? data.azurerm_resource_group.existing[0].location : var.location
 }
 
 # Generate unique suffix for storage account name
