@@ -154,23 +154,23 @@ stages:
               scriptType: "bash"
               scriptLocation: "inlineScript"
               addSpnToEnvironment: true
-            inlineScript: |
-              export ARM_CLIENT_ID=$servicePrincipalId
-              export ARM_CLIENT_SECRET=$servicePrincipalKey
-              export ARM_TENANT_ID=$tenantId
-              export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+              inlineScript: |
+                export ARM_CLIENT_ID=$servicePrincipalId
+                export ARM_CLIENT_SECRET=$servicePrincipalKey
+                export ARM_TENANT_ID=$tenantId
+                export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 
-              export TF_BACKEND_STORAGE_ACCOUNT=$(TF_BACKEND_STORAGE_ACCOUNT)
+                export TF_BACKEND_STORAGE_ACCOUNT=$(TF_BACKEND_STORAGE_ACCOUNT)
 
-              echo "Logged in as: $(az account show --query user.name -o tsv)"
-              echo "Subscription: $(az account show --query name -o tsv)"
-              echo "Backend storage account: $TF_BACKEND_STORAGE_ACCOUNT"
+                echo "Logged in as: $(az account show --query user.name -o tsv)"
+                echo "Subscription: $(az account show --query name -o tsv)"
+                echo "Backend storage account: $TF_BACKEND_STORAGE_ACCOUNT"
 
-              cd "live/1. dev"
-              terragrunt init
-              terragrunt plan -out=$(Build.ArtifactStagingDirectory)/dev-tfplan
+                cd "live/1. dev"
+                terragrunt init
+                terragrunt plan -out=$(Build.ArtifactStagingDirectory)/dev-tfplan
 
-              echo "Plan completed successfully"
+                echo "Plan completed successfully"
 
           - task: PublishBuildArtifacts@1
             displayName: "Publish Dev Plan Artifacts"
@@ -220,23 +220,23 @@ stages:
               scriptType: "bash"
               scriptLocation: "inlineScript"
               addSpnToEnvironment: true
-            inlineScript: |
-              export ARM_CLIENT_ID=$servicePrincipalId
-              export ARM_CLIENT_SECRET=$servicePrincipalKey
-              export ARM_TENANT_ID=$tenantId
-              export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+              inlineScript: |
+                export ARM_CLIENT_ID=$servicePrincipalId
+                export ARM_CLIENT_SECRET=$servicePrincipalKey
+                export ARM_TENANT_ID=$tenantId
+                export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 
-              export TF_BACKEND_STORAGE_ACCOUNT=$(TF_BACKEND_STORAGE_ACCOUNT)
+                export TF_BACKEND_STORAGE_ACCOUNT=$(TF_BACKEND_STORAGE_ACCOUNT)
 
-              echo "Logged in as: $(az account show --query user.name -o tsv)"
-              echo "Subscription: $(az account show --query name -o tsv)"
-              echo "Backend storage account: $TF_BACKEND_STORAGE_ACCOUNT"
+                echo "Logged in as: $(az account show --query user.name -o tsv)"
+                echo "Subscription: $(az account show --query name -o tsv)"
+                echo "Backend storage account: $TF_BACKEND_STORAGE_ACCOUNT"
 
-              cd "live/2. stage"
-              terragrunt init
-              terragrunt plan -out=$(Build.ArtifactStagingDirectory)/stage-tfplan
+                cd "live/2. stage"
+                terragrunt init
+                terragrunt plan -out=$(Build.ArtifactStagingDirectory)/stage-tfplan
 
-              echo "Plan completed successfully"
+                echo "Plan completed successfully"
 
           - task: PublishBuildArtifacts@1
             displayName: "Publish Stage Plan Artifacts"
@@ -286,23 +286,23 @@ stages:
               scriptType: "bash"
               scriptLocation: "inlineScript"
               addSpnToEnvironment: true
-            inlineScript: |
-              export ARM_CLIENT_ID=$servicePrincipalId
-              export ARM_CLIENT_SECRET=$servicePrincipalKey
-              export ARM_TENANT_ID=$tenantId
-              export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+              inlineScript: |
+                export ARM_CLIENT_ID=$servicePrincipalId
+                export ARM_CLIENT_SECRET=$servicePrincipalKey
+                export ARM_TENANT_ID=$tenantId
+                export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 
-              export TF_BACKEND_STORAGE_ACCOUNT=$(TF_BACKEND_STORAGE_ACCOUNT)
+                export TF_BACKEND_STORAGE_ACCOUNT=$(TF_BACKEND_STORAGE_ACCOUNT)
 
-              echo "Logged in as: $(az account show --query user.name -o tsv)"
-              echo "Subscription: $(az account show --query name -o tsv)"
-              echo "Backend storage account: $TF_BACKEND_STORAGE_ACCOUNT"
+                echo "Logged in as: $(az account show --query user.name -o tsv)"
+                echo "Subscription: $(az account show --query name -o tsv)"
+                echo "Backend storage account: $TF_BACKEND_STORAGE_ACCOUNT"
 
-              cd "live/3. prod"
-              terragrunt init
-              terragrunt plan -out=$(Build.ArtifactStagingDirectory)/prod-tfplan
+                cd "live/3. prod"
+                terragrunt init
+                terragrunt plan -out=$(Build.ArtifactStagingDirectory)/prod-tfplan
 
-              echo "Plan completed successfully"
+                echo "Plan completed successfully"
 
           - task: PublishBuildArtifacts@1
             displayName: "Publish Prod Plan Artifacts"
@@ -358,22 +358,22 @@ stages:
               scriptType: "bash"
               scriptLocation: "inlineScript"
               addSpnToEnvironment: true
-            inlineScript: |
-              export ARM_CLIENT_ID=$servicePrincipalId
-              export ARM_CLIENT_SECRET=$servicePrincipalKey
-              export ARM_TENANT_ID=$tenantId
-              export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+              inlineScript: |
+                export ARM_CLIENT_ID=$servicePrincipalId
+                export ARM_CLIENT_SECRET=$servicePrincipalKey
+                export ARM_TENANT_ID=$tenantId
+                export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 
-              export TF_BACKEND_STORAGE_ACCOUNT=$(TF_BACKEND_STORAGE_ACCOUNT)
+                export TF_BACKEND_STORAGE_ACCOUNT=$(TF_BACKEND_STORAGE_ACCOUNT)
 
-              echo "Applying infrastructure for Dev environment..."
-              echo "Backend storage account: $TF_BACKEND_STORAGE_ACCOUNT"
+                echo "Applying infrastructure for Dev environment..."
+                echo "Backend storage account: $TF_BACKEND_STORAGE_ACCOUNT"
 
-              cd "live/1. dev"
-              terragrunt init
-              terragrunt apply "$(Pipeline.Workspace)/dev-plan/dev-tfplan"
+                cd "live/1. dev"
+                terragrunt init
+                terragrunt apply "$(Pipeline.Workspace)/dev-plan/dev-tfplan"
 
-              echo "Apply completed successfully"
+                echo "Apply completed successfully"
 
   # ==================== APPLY STAGE STAGE ====================
   - stage: apply_stage
@@ -424,22 +424,22 @@ stages:
               scriptType: "bash"
               scriptLocation: "inlineScript"
               addSpnToEnvironment: true
-            inlineScript: |
-              export ARM_CLIENT_ID=$servicePrincipalId
-              export ARM_CLIENT_SECRET=$servicePrincipalKey
-              export ARM_TENANT_ID=$tenantId
-              export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+              inlineScript: |
+                export ARM_CLIENT_ID=$servicePrincipalId
+                export ARM_CLIENT_SECRET=$servicePrincipalKey
+                export ARM_TENANT_ID=$tenantId
+                export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 
-              export TF_BACKEND_STORAGE_ACCOUNT=$(TF_BACKEND_STORAGE_ACCOUNT)
+                export TF_BACKEND_STORAGE_ACCOUNT=$(TF_BACKEND_STORAGE_ACCOUNT)
 
-              echo "Applying infrastructure for Stage environment..."
-              echo "Backend storage account: $TF_BACKEND_STORAGE_ACCOUNT"
+                echo "Applying infrastructure for Stage environment..."
+                echo "Backend storage account: $TF_BACKEND_STORAGE_ACCOUNT"
 
-              cd "live/2. stage"
-              terragrunt init
-              terragrunt apply "$(Pipeline.Workspace)/stage-plan/stage-tfplan"
+                cd "live/2. stage"
+                terragrunt init
+                terragrunt apply "$(Pipeline.Workspace)/stage-plan/stage-tfplan"
 
-              echo "Apply completed successfully"
+                echo "Apply completed successfully"
 
   # ==================== APPLY PROD STAGE ====================
   - stage: apply_prod
@@ -490,19 +490,19 @@ stages:
               scriptType: "bash"
               scriptLocation: "inlineScript"
               addSpnToEnvironment: true
-            inlineScript: |
-              export ARM_CLIENT_ID=$servicePrincipalId
-              export ARM_CLIENT_SECRET=$servicePrincipalKey
-              export ARM_TENANT_ID=$tenantId
-              export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+              inlineScript: |
+                export ARM_CLIENT_ID=$servicePrincipalId
+                export ARM_CLIENT_SECRET=$servicePrincipalKey
+                export ARM_TENANT_ID=$tenantId
+                export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 
-              export TF_BACKEND_STORAGE_ACCOUNT=$(TF_BACKEND_STORAGE_ACCOUNT)
+                export TF_BACKEND_STORAGE_ACCOUNT=$(TF_BACKEND_STORAGE_ACCOUNT)
 
-              echo "Applying infrastructure for Prod environment..."
-              echo "Backend storage account: $TF_BACKEND_STORAGE_ACCOUNT"
+                echo "Applying infrastructure for Prod environment..."
+                echo "Backend storage account: $TF_BACKEND_STORAGE_ACCOUNT"
 
-              cd "live/3. prod"
-              terragrunt init
-              terragrunt apply "$(Pipeline.Workspace)/prod-plan/prod-tfplan"
+                cd "live/3. prod"
+                terragrunt init
+                terragrunt apply "$(Pipeline.Workspace)/prod-plan/prod-tfplan"
 
-              echo "Apply completed successfully"
+                echo "Apply completed successfully"
