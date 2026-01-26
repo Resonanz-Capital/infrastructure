@@ -21,13 +21,21 @@ provider "azurerm" {
 
 }
 
-# Generate unique suffix for storage account name
-resource "random_id" "storage_suffix" {
-  byte_length = 4
+# Check if resource group already exists
+data "external" "rg_exists" {
+  program = ["sh", "-c", "az group show --name ${var.resource_group_name} --query '{exists:true}' -o json 2>/dev/null || echo '{\"exists\": false}'"]
 }
 
-# Create resource group for Terraform state
+# Data source for existing resource group
+data "azurerm_resource_group" "existing" {
+  count = data.external.rg_exists.result.exists == "true" ? 1 : 0
+  name  = var.resource_group_name
+}
+
+# Create resource group for Terraform state if it doesn't exist
 resource "azurerm_resource_group" "tfstate" {
+  count = data.external.rg_exists.result.exists == "true" ? 0 : 1
+
   name     = var.resource_group_name
   location = var.location
 
@@ -37,11 +45,21 @@ resource "azurerm_resource_group" "tfstate" {
   }
 }
 
+# Locals for resource group location
+locals {
+  rg_location = data.external.rg_exists.result.exists == "true" ? data.azurerm_resource_group.existing[0].location : var.location
+}
+
+# Generate unique suffix for storage account name
+resource "random_id" "storage_suffix" {
+  byte_length = 4
+}
+
 # Create storage account for Terraform state
 resource "azurerm_storage_account" "tfstate" {
   name                     = "${var.storage_account_prefix}${random_id.storage_suffix.hex}"
-  resource_group_name      = azurerm_resource_group.tfstate.name
-  location                 = azurerm_resource_group.tfstate.location
+  resource_group_name      = var.resource_group_name
+  location                 = local.rg_location
   account_tier             = "Standard"
   account_replication_type = "LRS"
 
