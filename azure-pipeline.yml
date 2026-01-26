@@ -28,7 +28,7 @@ variables:
   - name: terragruntVersion
     value: "0.55.1"
   - name: azureSubscription
-    value: "your-azure-subscription-name" # Update this with your actual subscription name
+    value: "azure-sirma-terraform" # Update this with your actual subscription name
 
 stages:
   - stage: validate
@@ -259,7 +259,7 @@ stages:
                   inputs:
                     downloadType: "single"
                     artifactName: "dev-plan"
-                    downloadPath: "$(System.DefaultWorkingDirectory)"
+                    downloadPath: "live/1. dev"
 
                 - task: AzureCLI@2
                   displayName: "Azure CLI Login"
@@ -285,7 +285,7 @@ stages:
 
                 - script: |
                     cd live/1.\ dev
-                    terragrunt apply tfplan
+                    terragrunt apply dev-plan/tfplan
                   displayName: "Terragrunt Apply Dev"
 
   - stage: apply_stage
@@ -311,7 +311,7 @@ stages:
                   inputs:
                     downloadType: "single"
                     artifactName: "stage-plan"
-                    downloadPath: "$(System.DefaultWorkingDirectory)"
+                    downloadPath: "live/2. stage"
 
                 - task: AzureCLI@2
                   displayName: "Azure CLI Login"
@@ -337,7 +337,7 @@ stages:
 
                 - script: |
                     cd live/2.\ stage
-                    terragrunt apply tfplan
+                    terragrunt apply stage-plan/tfplan
                   displayName: "Terragrunt Apply Stage"
 
   - stage: apply_prod
@@ -363,7 +363,7 @@ stages:
                   inputs:
                     downloadType: "single"
                     artifactName: "prod-plan"
-                    downloadPath: "$(System.DefaultWorkingDirectory)"
+                    downloadPath: "live/3. prod"
 
                 - task: AzureCLI@2
                   displayName: "Azure CLI Login"
@@ -389,7 +389,7 @@ stages:
 
                 - script: |
                     cd live/3.\ prod
-                    terragrunt apply tfplan
+                    terragrunt apply prod-plan/tfplan
                   displayName: "Terragrunt Apply Prod"
 
   - stage: cleanup
