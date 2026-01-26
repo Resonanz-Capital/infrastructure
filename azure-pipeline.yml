@@ -1,38 +1,3 @@
-# Azure DevOps Pipeline for Terraform/Terragrunt Azure Infrastructure
-
-trigger:
-  branches:
-    include:
-      - main
-      - develop
-  paths:
-    include:
-      - "**/*.tf"
-      - "**/*.hcl"
-      - "**/terragrunt.hcl"
-
-pr:
-  branches:
-    include:
-      - main
-      - develop
-  paths:
-    include:
-      - "**/*.tf"
-      - "**/*.hcl"
-      - "**/terragrunt.hcl"
-
-variables:
-  - name: terraformVersion
-    value: "1.5.7"
-  - name: terragruntVersion
-    value: "0.55.1"
-  - name: azureSubscription
-    value: "azure-sirma-terraform"
-
-stages:
-# Azure DevOps Pipeline for Terraform/Terragrunt Azure Infrastructure
-
 trigger:
   branches:
     include:
@@ -110,10 +75,10 @@ stages:
 
                 echo "Bootstrap completed. Storage account: $STORAGE_ACCOUNT"
 
-
   # ==================== VALIDATE STAGE ====================
   - stage: validate
     displayName: "Validate"
+    dependsOn: bootstrap
     jobs:
       - job: validate
         displayName: "Validate Terraform Code"
@@ -141,7 +106,8 @@ stages:
 
           - script: |
               echo "Running Terraform format check..."
-              terraform fmt -check -recursive || echo "Format check failed but continuing..."
+              terraform fmt -check -recursive || echo "WARNING: Some files need formatting, but continuing..."
+              exit 0
             displayName: "Terraform Format Check"
             continueOnError: true
 
