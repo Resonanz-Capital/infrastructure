@@ -43,13 +43,10 @@ stages:
           - checkout: self
             persistCredentials: true
 
-          - script: |
-              echo "Installing Terraform $(terraformVersion)..."
-              wget -O terraform.zip https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip
-              unzip terraform.zip
-              sudo mv terraform /usr/local/bin/
-              terraform --version
+          - task: TerraformInstaller@0
             displayName: "Install Terraform"
+            inputs:
+              terraformVersion: $(terraformVersion)
 
           - script: |
               echo "Installing Terragrunt $(terragruntVersion)..."
@@ -59,10 +56,14 @@ stages:
               terragrunt --version
             displayName: "Install Terragrunt"
 
-          - script: |
-              echo "Running Terraform format check..."
-              terraform fmt -check -recursive
+          - task: TerraformTaskV4@4
             displayName: "Terraform Format Check"
+            inputs:
+              provider: "azurerm"
+              command: "custom"
+              customCommand: "fmt"
+              commandOptions: "-check -recursive"
+              workingDirectory: "$(System.DefaultWorkingDirectory)"
             continueOnError: true
 
   # ==================== PLAN DEV STAGE ====================
@@ -79,13 +80,10 @@ stages:
           - checkout: self
             persistCredentials: true
 
-          - script: |
-              echo "Installing Terraform $(terraformVersion)..."
-              wget -O terraform.zip https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip
-              unzip terraform.zip
-              sudo mv terraform /usr/local/bin/
-              terraform --version
+          - task: TerraformInstaller@0
             displayName: "Install Terraform"
+            inputs:
+              terraformVersion: $(terraformVersion)
 
           - script: |
               echo "Installing Terragrunt $(terragruntVersion)..."
@@ -138,13 +136,10 @@ stages:
           - checkout: self
             persistCredentials: true
 
-          - script: |
-              echo "Installing Terraform $(terraformVersion)..."
-              wget -O terraform.zip https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip
-              unzip terraform.zip
-              sudo mv terraform /usr/local/bin/
-              terraform --version
+          - task: TerraformInstaller@0
             displayName: "Install Terraform"
+            inputs:
+              terraformVersion: $(terraformVersion)
 
           - script: |
               echo "Installing Terragrunt $(terragruntVersion)..."
@@ -197,13 +192,10 @@ stages:
           - checkout: self
             persistCredentials: true
 
-          - script: |
-              echo "Installing Terraform $(terraformVersion)..."
-              wget -O terraform.zip https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip
-              unzip terraform.zip
-              sudo mv terraform /usr/local/bin/
-              terraform --version
+          - task: TerraformInstaller@0
             displayName: "Install Terraform"
+            inputs:
+              terraformVersion: $(terraformVersion)
 
           - script: |
               echo "Installing Terragrunt $(terragruntVersion)..."
@@ -264,13 +256,10 @@ stages:
               artifactName: "dev-plan"
               downloadPath: "$(Pipeline.Workspace)"
 
-          - script: |
-              echo "Installing Terraform $(terraformVersion)..."
-              wget -O terraform.zip https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip
-              unzip terraform.zip
-              sudo mv terraform /usr/local/bin/
-              terraform --version
+          - task: TerraformInstaller@0
             displayName: "Install Terraform"
+            inputs:
+              terraformVersion: $(terraformVersion)
 
           - script: |
               echo "Installing Terragrunt $(terragruntVersion)..."
@@ -325,13 +314,10 @@ stages:
               artifactName: "stage-plan"
               downloadPath: "$(Pipeline.Workspace)"
 
-          - script: |
-              echo "Installing Terraform $(terraformVersion)..."
-              wget -O terraform.zip https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip
-              unzip terraform.zip
-              sudo mv terraform /usr/local/bin/
-              terraform --version
+          - task: TerraformInstaller@0
             displayName: "Install Terraform"
+            inputs:
+              terraformVersion: $(terraformVersion)
 
           - script: |
               echo "Installing Terragrunt $(terragruntVersion)..."
@@ -386,13 +372,10 @@ stages:
               artifactName: "prod-plan"
               downloadPath: "$(Pipeline.Workspace)"
 
-          - script: |
-              echo "Installing Terraform $(terraformVersion)..."
-              wget -O terraform.zip https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip
-              unzip terraform.zip
-              sudo mv terraform /usr/local/bin/
-              terraform --version
+          - task: TerraformInstaller@0
             displayName: "Install Terraform"
+            inputs:
+              terraformVersion: $(terraformVersion)
 
           - script: |
               echo "Installing Terragrunt $(terragruntVersion)..."
