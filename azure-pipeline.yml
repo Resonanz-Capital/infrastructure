@@ -288,6 +288,10 @@ stages:
                     terragrunt apply dev-plan/tfplan
                   displayName: "Terragrunt Apply Dev"
 
+                - task: AzureWebApp@1
+                  inputs:
+                    azureSubscription: "azure-sirma-terraform"
+
   - stage: apply_stage
     displayName: "Apply Stage Environment"
     dependsOn: apply_dev
@@ -340,6 +344,10 @@ stages:
                     terragrunt apply stage-plan/tfplan
                   displayName: "Terragrunt Apply Stage"
 
+                - task: AzureWebApp@1
+                  inputs:
+                    azureSubscription: "azure-sirma-terraform"
+
   - stage: apply_prod
     displayName: "Apply Prod Environment"
     dependsOn: apply_stage
@@ -391,6 +399,10 @@ stages:
                     cd live/3.\ prod
                     terragrunt apply prod-plan/tfplan
                   displayName: "Terragrunt Apply Prod"
+
+                - task: AzureWebApp@1
+                  inputs:
+                    azureSubscription: "azure-sirma-terraform"
 
   - stage: cleanup
     displayName: "Cleanup"
