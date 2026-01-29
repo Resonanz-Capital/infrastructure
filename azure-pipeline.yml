@@ -28,7 +28,7 @@ variables:
   - name: azureSubscription
     value: "azure-sirma-terraform"
   - name: TF_BACKEND_STORAGE_ACCOUNT
-    value: "tfstatee1eb09bee"
+    value: "tfstate0182323"
 
 stages:
   # ==================== BOOTSTRAP STAGE ====================
