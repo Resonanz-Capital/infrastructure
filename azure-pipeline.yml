@@ -123,8 +123,7 @@ stages:
       - bootstrap
       - validate
     condition: succeeded()
-    variables:
-    #  TF_BACKEND_STORAGE_ACCOUNT: $[ stageDependencies.bootstrap.bootstrap.outputs['bootstrapOutputs.TF_BACKEND_STORAGE_ACCOUNT'] ]
+
     jobs:
       - job: plan_dev
         displayName: "Plan Dev Infrastructure"
@@ -190,8 +189,7 @@ stages:
       - bootstrap
       - validate
     condition: succeeded()
-    variables:
-    #  TF_BACKEND_STORAGE_ACCOUNT: $[ stageDependencies.bootstrap.bootstrap.outputs['bootstrapOutputs.TF_BACKEND_STORAGE_ACCOUNT'] ]
+
     jobs:
       - job: plan_stage
         displayName: "Plan Stage Infrastructure"
@@ -257,8 +255,7 @@ stages:
       - bootstrap
       - validate
     condition: succeeded()
-    variables:
-    #  TF_BACKEND_STORAGE_ACCOUNT: $[ stageDependencies.bootstrap.bootstrap.outputs['bootstrapOutputs.TF_BACKEND_STORAGE_ACCOUNT'] ]
+
     jobs:
       - job: plan_prod
         displayName: "Plan Prod Infrastructure"
@@ -322,8 +319,7 @@ stages:
     displayName: "Apply Dev Environment"
     dependsOn: plan_dev
     condition: succeeded()
-    variables:
-    #  TF_BACKEND_STORAGE_ACCOUNT: $[ stageDependencies.bootstrap.bootstrap.outputs['bootstrapOutputs.TF_BACKEND_STORAGE_ACCOUNT'] ]
+
     jobs:
       - job: apply_dev
         displayName: "Apply Dev Infrastructure"
@@ -389,8 +385,7 @@ stages:
       - plan_stage
       - apply_dev
     condition: succeeded()
-    variables:
-    #  TF_BACKEND_STORAGE_ACCOUNT: $[ stageDependencies.bootstrap.bootstrap.outputs['bootstrapOutputs.TF_BACKEND_STORAGE_ACCOUNT'] ]
+
     jobs:
       - job: apply_stage
         displayName: "Apply Stage Infrastructure"
@@ -456,8 +451,7 @@ stages:
       - plan_prod
       - apply_stage
     condition: succeeded()
-    variables:
-    #  TF_BACKEND_STORAGE_ACCOUNT: $[ stageDependencies.bootstrap.bootstrap.outputs['bootstrapOutputs.TF_BACKEND_STORAGE_ACCOUNT'] ]
+
     jobs:
       - job: apply_prod
         displayName: "Apply Prod Infrastructure"
