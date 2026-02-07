@@ -11,7 +11,7 @@ remote_state {
   }
 
   config = {
-    resource_group_name  = "resonanz-rg"
+    resource_group_name  = "RCA-AZ-RG-SNDBX-TEST"
     storage_account_name = local.storage_account_name
     container_name       = "tfstate"
     key                  = "${path_relative_to_include()}/terraform.tfstate"
@@ -32,5 +32,5 @@ EOF
 inputs = {
   location            = "westeurope"
   project             = "resonanz-tmpl"
-  resource_group_name = "resonanz-rg"
+  resource_group_name = "RCA-AZ-RG-SNDBX-TEST"
 }

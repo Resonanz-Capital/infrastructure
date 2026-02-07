@@ -1,7 +1,7 @@
 variable "resource_group_name" {
   description = "Name of the resource group for Terraform state"
   type        = string
-  default     = "resonanz-rg"
+  default     = "RCA-AZ-RG-SNDBX-TEST"
 }
 
 variable "location" {
