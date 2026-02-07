@@ -161,6 +161,12 @@ stages:
                 export ARM_TENANT_ID=$tenantId
                 export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 
+                echo "=== DEBUG INFO ==="
+                echo "TF_BACKEND_STORAGE_ACCOUNT from pipeline: '$(TF_BACKEND_STORAGE_ACCOUNT)'"
+                echo "Environment variables:"
+                env | grep TF_ || echo "No TF_ variables found"
+                echo "=================="
+
                 echo "Pipeline TF_BACKEND_STORAGE_ACCOUNT: '$(TF_BACKEND_STORAGE_ACCOUNT)'"
                 export TF_BACKEND_STORAGE_ACCOUNT=$(TF_BACKEND_STORAGE_ACCOUNT)
 
