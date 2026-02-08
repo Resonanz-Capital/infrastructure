@@ -27,7 +27,7 @@ variable "storage_account_name" {
   default     = null
 
   validation {
-    condition     = var.storage_account_name == null || can(regex("^[a-z0-9]{3,24}$", var.storage_account_name))
+    condition     = var.storage_account_name == null || (length(var.storage_account_name) >= 3 && length(var.storage_account_name) <= 24 && can(regex("^[a-z0-9]+$", var.storage_account_name)))
     error_message = "Storage account name must be lowercase alphanumeric, between 3-24 characters."
   }
 }

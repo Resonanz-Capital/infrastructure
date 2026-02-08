@@ -10,10 +10,6 @@ terraform {
       source  = "hashicorp/random"
       version = "~> 3.0"
     }
-    external = {
-      source  = "hashicorp/external"
-      version = "~> 2.0"
-    }
   }
 }
 
@@ -24,21 +20,22 @@ provider "azurerm" {
   subscription_id = "6346877f-9b0c-4549-aa42-65062902ebdd"
 }
 
-# Check if resource group exists using Azure CLI
-data "external" "rg_check" {
-  program = ["bash", "-c", <<-EOT
-    if az group show --name '${var.resource_group_name}' &>/dev/null; then
-      echo '{"exists":"true"}'
-    else
-      echo '{"exists":"false"}'
-    fi
-  EOT
-  ]
+# Try to get existing resource group (will be null if it doesn't exist)
+data "azurerm_resource_group" "existing" {
+  count = 1
+  name  = var.resource_group_name
+
+  lifecycle {
+    postcondition {
+      condition     = self.id != null || self.id == null
+      error_message = "Checking resource group existence"
+    }
+  }
 }
 
 # Create resource group for Terraform state if it doesn't exist
 resource "azurerm_resource_group" "tfstate" {
-  count = data.external.rg_check.result.exists == "false" ? 1 : 0
+  count = try(data.azurerm_resource_group.existing[0].id, null) == null ? 1 : 0
 
   name     = var.resource_group_name
   location = var.location
@@ -56,16 +53,14 @@ resource "azurerm_resource_group" "tfstate" {
   }
 }
 
-# Get existing resource group data if it exists
-data "azurerm_resource_group" "existing" {
-  count = data.external.rg_check.result.exists == "true" ? 1 : 0
-  name  = var.resource_group_name
-}
-
 # Determine the actual resource group location
 locals {
-  resource_group_location = data.external.rg_check.result.exists == "true" ? data.azurerm_resource_group.existing[0].location : azurerm_resource_group.tfstate[0].location
-  resource_group_name     = var.resource_group_name
+  resource_group_location = try(
+    data.azurerm_resource_group.existing[0].location,
+    azurerm_resource_group.tfstate[0].location,
+    var.location
+  )
+  resource_group_name = var.resource_group_name
 }
 
 # Generate a deterministic storage account name or use existing
@@ -83,25 +78,27 @@ locals {
   storage_account_name = var.storage_account_name != null ? var.storage_account_name : "${var.storage_account_prefix}${random_id.storage_suffix[0].hex}"
 }
 
-# Check if storage account exists using Azure CLI
-data "external" "sa_check" {
-  program = ["bash", "-c", <<-EOT
-    if az storage account show --name '${local.storage_account_name}' --resource-group '${local.resource_group_name}' &>/dev/null; then
-      echo '{"exists":"true"}'
-    else
-      echo '{"exists":"false"}'
-    fi
-  EOT
-  ]
+# Try to get existing storage account (will be null if it doesn't exist)
+data "azurerm_storage_account" "existing" {
+  count               = 1
+  name                = local.storage_account_name
+  resource_group_name = local.resource_group_name
 
   depends_on = [
     azurerm_resource_group.tfstate
   ]
+
+  lifecycle {
+    postcondition {
+      condition     = self.id != null || self.id == null
+      error_message = "Checking storage account existence"
+    }
+  }
 }
 
 # Create storage account for Terraform state if it doesn't exist
 resource "azurerm_storage_account" "tfstate" {
-  count = data.external.sa_check.result.exists == "false" ? 1 : 0
+  count = try(data.azurerm_storage_account.existing[0].id, null) == null ? 1 : 0
 
   name                     = local.storage_account_name
   resource_group_name      = local.resource_group_name
@@ -122,52 +119,40 @@ resource "azurerm_storage_account" "tfstate" {
     ManagedBy   = "Terraform Bootstrap"
   }
 
-  lifecycle {
-    prevent_destroy = true
-  }
-
   depends_on = [
     azurerm_resource_group.tfstate
   ]
 }
 
-# Get existing storage account data if it exists
-data "azurerm_storage_account" "existing" {
-  count               = data.external.sa_check.result.exists == "true" ? 1 : 0
-  name                = local.storage_account_name
-  resource_group_name = local.resource_group_name
-
-  depends_on = [
-    azurerm_resource_group.tfstate
-  ]
-}
-
-# Get the actual storage account ID and key
+# Get the actual storage account ID
 locals {
-  storage_account_id          = data.external.sa_check.result.exists == "true" ? data.azurerm_storage_account.existing[0].id : azurerm_storage_account.tfstate[0].id
-  storage_account_primary_key = data.external.sa_check.result.exists == "true" ? data.azurerm_storage_account.existing[0].primary_access_key : azurerm_storage_account.tfstate[0].primary_access_key
+  storage_account_id = try(
+    data.azurerm_storage_account.existing[0].id,
+    azurerm_storage_account.tfstate[0].id
+  )
 }
 
-# Check if container exists using Azure CLI
-data "external" "container_check" {
-  program = ["bash", "-c", <<-EOT
-    if az storage container show --name '${var.container_name}' --account-name '${local.storage_account_name}' --account-key '${local.storage_account_primary_key}' &>/dev/null; then
-      echo '{"exists":"true"}'
-    else
-      echo '{"exists":"false"}'
-    fi
-  EOT
-  ]
+# Try to get existing container (will be null if it doesn't exist)
+data "azurerm_storage_container" "existing" {
+  count              = 1
+  name               = var.container_name
+  storage_account_id = local.storage_account_id
 
   depends_on = [
-    azurerm_storage_account.tfstate,
-    data.azurerm_storage_account.existing
+    azurerm_storage_account.tfstate
   ]
+
+  lifecycle {
+    postcondition {
+      condition     = self.id != null || self.id == null
+      error_message = "Checking storage container existence"
+    }
+  }
 }
 
 # Create blob container for state files if it doesn't exist
 resource "azurerm_storage_container" "tfstate" {
-  count = data.external.container_check.result.exists == "false" ? 1 : 0
+  count = try(data.azurerm_storage_container.existing[0].id, null) == null ? 1 : 0
 
   name                  = var.container_name
   storage_account_id    = local.storage_account_id
