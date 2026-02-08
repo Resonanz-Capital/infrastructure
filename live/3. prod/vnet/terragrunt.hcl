@@ -7,6 +7,7 @@ include {
 }
 
 inputs = {
+  resource_group_name = "resonanz-tmpl-prod-rg"
   environment               = "prod"
   vnet_address_space        = ["10.0.0.0/16"]
   create_app_subnet         = true

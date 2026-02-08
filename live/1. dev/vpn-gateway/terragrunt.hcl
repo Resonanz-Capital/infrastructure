@@ -18,6 +18,7 @@ dependency "vnet" {
 
 inputs = {
   environment                  = "dev"
+  resource_group_name          = "resonanz-tmpl-dev-rg"
   gateway_subnet_id            = dependency.vnet.outputs.subnets["GatewaySubnet"]
   vpn_gateway_sku              = "VpnGw1"
   create_local_network_gateway = false

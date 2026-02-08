@@ -20,6 +20,7 @@ dependency "vnet" {
 
 inputs = {
   environment           = "dev"
+  resource_group_name   = "resonanz-tmpl-dev-rg"
   app_gateway_subnet_id = dependency.vnet.outputs.subnets["app-gateway-subnet"]
   app_gateway_sku       = "Standard_v2"
   app_gateway_tier      = "Standard_v2"

@@ -7,6 +7,7 @@ include {
 }
 
 inputs = {
+  resource_group_name = "resonanz-tmpl-prod-rg"
   environment   = "prod"
   acr_sku       = "Premium"
   admin_enabled = true

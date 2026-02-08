@@ -7,6 +7,7 @@ include {
 }
 
 inputs = {
+  resource_group_name = "resonanz-tmpl-stage-rg"
   environment         = "stage"
   capacity            = 1
   family              = "C"

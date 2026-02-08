@@ -17,7 +17,8 @@ dependency "app_service" {
 # ПРЕМАХНИ dependency "self" блока напълно!
 
 inputs = {
-  environment = "dev"
+  environment         = "dev"
+  resource_group_name = "resonanz-tmpl-dev-rg"
 
   action_groups = [
     {

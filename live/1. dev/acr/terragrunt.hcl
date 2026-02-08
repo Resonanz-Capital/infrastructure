@@ -7,7 +7,8 @@ include {
 }
 
 inputs = {
-  environment   = "dev"
-  acr_sku       = "Basic"
-  admin_enabled = false
+  environment         = "dev"
+  resource_group_name = "resonanz-tmpl-dev-rg"
+  acr_sku             = "Basic"
+  admin_enabled       = false
 }

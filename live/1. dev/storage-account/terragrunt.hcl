@@ -7,7 +7,8 @@ include {
 }
 
 inputs = {
-  environment = "dev"
+  environment              = "dev"
+  resource_group_name      = "resonanz-tmpl-dev-rg"
   account_tier             = "Standard"
   account_replication_type = "LRS"
   account_kind             = "StorageV2"

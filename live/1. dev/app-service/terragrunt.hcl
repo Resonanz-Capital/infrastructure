@@ -7,7 +7,8 @@ include {
 }
 
 inputs = {
-  environment = "dev"
-  os_type  = "Linux"
-  sku_name = "B1"
+  environment         = "dev"
+  resource_group_name = "resonanz-tmpl-dev-rg"
+  os_type             = "Linux"
+  sku_name            = "B1"
 }

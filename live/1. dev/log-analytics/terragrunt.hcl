@@ -7,7 +7,8 @@ include {
 }
 
 inputs = {
-  environment = "dev"
-  sku               = "PerGB2018"
-  retention_in_days = 30
+  environment         = "dev"
+  resource_group_name = "resonanz-tmpl-dev-rg"
+  sku                 = "PerGB2018"
+  retention_in_days   = 30
 }

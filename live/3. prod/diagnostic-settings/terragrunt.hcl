@@ -39,6 +39,7 @@ dependencies {
 }
 
 inputs = {
+  resource_group_name = "resonanz-tmpl-prod-rg"
   environment                = "prod"
   log_analytics_workspace_id = dependency.log_analytics.outputs.log_analytics_workspace_id
   retention_days             = 90

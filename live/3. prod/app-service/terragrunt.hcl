@@ -7,6 +7,7 @@ include {
 }
 
 inputs = {
+  resource_group_name = "resonanz-tmpl-prod-rg"
   environment = "prod"
   os_type     = "Linux"
   sku_name    = "P1v2"

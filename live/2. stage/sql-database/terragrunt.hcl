@@ -7,6 +7,7 @@ include {
 }
 
 inputs = {
+  resource_group_name = "resonanz-tmpl-stage-rg"
   environment                  = "stage"
   administrator_login          = "sqladmin"
   administrator_login_password = "Password123!"

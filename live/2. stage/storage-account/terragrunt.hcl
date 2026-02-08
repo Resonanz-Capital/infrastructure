@@ -7,6 +7,7 @@ include {
 }
 
 inputs = {
+  resource_group_name = "resonanz-tmpl-stage-rg"
   environment              = "stage"
   account_tier             = "Standard"
   account_replication_type = "GRS"

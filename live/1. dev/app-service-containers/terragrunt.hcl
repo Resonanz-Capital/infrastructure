@@ -7,11 +7,12 @@ include {
 }
 
 inputs = {
-  environment = "dev"
-  docker_image     = "nginx"
-  docker_image_tag = "latest"
-  sku_name         = "B1"
-  always_on        = true
+  environment         = "dev"
+  resource_group_name = "resonanz-tmpl-dev-rg"
+  docker_image        = "nginx"
+  docker_image_tag    = "latest"
+  sku_name            = "B1"
+  always_on           = true
   app_settings = {
     "WEBSITES_PORT" = "80"
   }

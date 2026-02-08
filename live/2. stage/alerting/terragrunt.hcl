@@ -17,6 +17,7 @@ dependency "app_service" {
 # ПРЕМАХНИ dependency "self" блока напълно!
 
 inputs = {
+  resource_group_name = "resonanz-tmpl-stage-rg"
   environment = "stage"
 
   action_groups = [

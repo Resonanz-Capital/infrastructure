@@ -7,6 +7,7 @@ include {
 }
 
 inputs = {
+  resource_group_name = "resonanz-tmpl-stage-rg"
   environment      = "stage"
   docker_image     = "nginx"
   docker_image_tag = "latest"

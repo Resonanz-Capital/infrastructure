@@ -7,7 +7,8 @@ include {
 }
 
 inputs = {
-  environment = "dev"
+  environment                  = "dev"
+  resource_group_name          = "resonanz-tmpl-dev-rg"
   administrator_login          = "sqladmin"
   administrator_login_password = "Password123!"
   sku_name                     = "Basic"
