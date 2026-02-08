@@ -6,10 +6,6 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
     }
-    random = {
-      source  = "hashicorp/random"
-      version = "~> 3.0"
-    }
     external = {
       source  = "hashicorp/external"
       version = "~> 2.0"
@@ -68,19 +64,12 @@ locals {
   resource_group_name     = var.resource_group_name
 }
 
-# Generate a deterministic storage account name or use existing
-resource "random_id" "storage_suffix" {
-  count = var.storage_account_name == null ? 1 : 0
-
-  byte_length = 4
-
-  keepers = {
-    resource_group = local.resource_group_name
-  }
-}
-
+# Generate a deterministic storage account name using hash of resource group name
+# This ensures the name is known at plan time (not dependent on apply)
 locals {
-  storage_account_name = var.storage_account_name != null ? var.storage_account_name : "${var.storage_account_prefix}${random_id.storage_suffix[0].hex}"
+  # Create a deterministic suffix from resource group name (8 characters from MD5 hash)
+  storage_suffix = var.storage_account_name == null ? substr(md5(local.resource_group_name), 0, 8) : ""
+  storage_account_name = var.storage_account_name != null ? var.storage_account_name : "${var.storage_account_prefix}${local.storage_suffix}"
 }
 
 # Check if storage account exists using Azure CLI
