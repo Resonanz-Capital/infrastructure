@@ -39,3 +39,8 @@ output "storage_account_created" {
   description = "Whether the storage account was created (true) or already existed (false)"
   value       = data.external.sa_check.result.exists == "false"
 }
+
+output "container_created" {
+  description = "Whether the container was created - always managed by Terraform"
+  value       = true
+}
