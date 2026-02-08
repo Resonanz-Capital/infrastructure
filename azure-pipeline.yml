@@ -28,6 +28,11 @@ parameters:
     type: string
     default: "manual-001"
 
+  - name: runDestroy
+    displayName: "Run Destroy Stage"
+    type: boolean
+    default: false
+
 variables:
   - name: terraformVersion
     value: "1.5.7"
@@ -261,11 +266,14 @@ stages:
                 echo "Apply completed successfully"
 
   # ==================== DESTROY STAGE ====================
+  # This stage only runs when manually triggered with runDestroy=true
   - stage: destroy
     displayName: "Destroy Terraform"
     dependsOn:
       - bootstrap
-    condition: always()
+      - plan
+      - apply
+    condition: and(succeeded(), eq(variables['runDestroy'], 'true'))
     jobs:
       - job: destroy
         displayName: "Destroy Infrastructure"
