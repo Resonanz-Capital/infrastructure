@@ -20,6 +20,22 @@ pr:
       - "**/*.hcl"
       - "**/terragrunt.hcl"
 
+# Параметри, избирани при пускане на пайплайна
+parameters:
+  - name: targetEnvironment
+    displayName: "Environment"
+    type: string
+    default: "dev"
+    values:
+      - dev
+      - stage
+      - prod
+
+  - name: deploymentName
+    displayName: "Deployment name"
+    type: string
+    default: "manual-001"
+
 variables:
   - name: terraformVersion
     value: "1.5.7"
@@ -27,6 +43,8 @@ variables:
     value: "0.55.1"
   - name: azureSubscription
     value: "azure-sirma-terraform"
+  - name: TF_BACKEND_STORAGE_ACCOUNT
+    value: "tfstate0182323" # смени тук с реалния tfstate storage account
 
 stages:
   # ==================== BOOTSTRAP STAGE ====================
@@ -34,7 +52,7 @@ stages:
     displayName: "Bootstrap Infrastructure"
     jobs:
       - job: bootstrap
-        displayName: "Create Terraform Backend Storage"
+        displayName: "Create Backend Storage"
         pool:
           vmImage: "ubuntu-latest"
         steps:
@@ -50,82 +68,64 @@ stages:
             displayName: "Install Terraform"
 
           - task: AzureCLI@2
-            displayName: "Terraform Bootstrap"
-            name: bootstrapOutputs
+            displayName: "Bootstrap Terraform Backend"
             inputs:
               azureSubscription: $(azureSubscription)
               scriptType: "bash"
               scriptLocation: "inlineScript"
               addSpnToEnvironment: true
               inlineScript: |
+                set -e
+
                 export ARM_CLIENT_ID=$servicePrincipalId
                 export ARM_CLIENT_SECRET=$servicePrincipalKey
                 export ARM_TENANT_ID=$tenantId
                 export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 
-                echo "Running bootstrap to create Terraform state storage..."
+                echo "==========================================="
+                echo "Running Terraform Bootstrap"
+                echo "==========================================="
+
                 cd bootstrap
 
+                # Initialize Terraform (no backend needed for bootstrap)
                 terraform init
-                terraform plan -out=tfplan
-                terraform apply -auto-approve tfplan
 
-                STORAGE_ACCOUNT=$(terraform output -raw storage_account_name || echo "")
-                echo "STORAGE_ACCOUNT from terraform output: '$STORAGE_ACCOUNT'"
+                # Plan the changes
+                echo "Planning bootstrap resources..."
+                terraform plan -out=bootstrap.tfplan
 
+                # Apply the changes
+                echo "Applying bootstrap resources..."
+                terraform apply -auto-approve bootstrap.tfplan
+
+                # Get outputs
+                echo "==========================================="
+                echo "Bootstrap completed successfully!"
+                echo "==========================================="
+
+                STORAGE_ACCOUNT=$(terraform output -raw storage_account_name)
+                RESOURCE_GROUP=$(terraform output -raw resource_group_name)
+                CONTAINER_NAME=$(terraform output -raw container_name)
+                RG_CREATED=$(terraform output -raw resource_group_created)
+                SA_CREATED=$(terraform output -raw storage_account_created)
+                CONTAINER_CREATED=$(terraform output -raw container_created)
+
+                echo "Resource Group: $RESOURCE_GROUP (Created: $RG_CREATED)"
+                echo "Storage Account: $STORAGE_ACCOUNT (Created: $SA_CREATED)"
+                echo "Container: $CONTAINER_NAME (Created: $CONTAINER_CREATED)"
+                echo "==========================================="
+
+                # Set the storage account name as a pipeline variable for subsequent stages
                 echo "##vso[task.setvariable variable=TF_BACKEND_STORAGE_ACCOUNT;isOutput=true]$STORAGE_ACCOUNT"
 
-                echo "Bootstrap completed. Storage account: '$STORAGE_ACCOUNT'"
-
-  # ==================== VALIDATE STAGE ====================
-  - stage: validate
-    displayName: "Validate"
+  # ==================== PLAN STAGE ====================
+  - stage: plan
+    displayName: "Plan Terraform"
     dependsOn: bootstrap
-    condition: succeeded()
     jobs:
-      - job: validate
-        displayName: "Validate Terraform Code"
-        pool:
-          vmImage: "ubuntu-latest"
-        steps:
-          - checkout: self
-            persistCredentials: true
-
-          - script: |
-              echo "Installing Terraform $(terraformVersion)..."
-              wget -O terraform.zip https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip
-              unzip terraform.zip
-              sudo mv terraform /usr/local/bin/
-              terraform --version
-            displayName: "Install Terraform"
-
-          - script: |
-              echo "Installing Terragrunt $(terragruntVersion)..."
-              wget -O terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v$(terragruntVersion)/terragrunt_linux_amd64
-              chmod +x terragrunt
-              sudo mv terragrunt /usr/local/bin/
-              terragrunt --version
-            displayName: "Install Terragrunt"
-
-          - script: |
-              echo "Running Terraform format check..."
-              terraform fmt -check -recursive || echo "WARNING: Some files need formatting, but continuing..."
-              exit 0
-            displayName: "Terraform Format Check"
-            continueOnError: true
-
-  # ==================== PLAN DEV STAGE ====================
-  - stage: plan_dev
-    displayName: "Plan Dev Environment"
-    dependsOn:
-      - bootstrap
-      - validate
-    condition: succeeded()
-    variables:
-      TF_BACKEND_STORAGE_ACCOUNT: $[ stageDependencies.bootstrap.bootstrap.outputs['bootstrapOutputs.TF_BACKEND_STORAGE_ACCOUNT'] ]
-    jobs:
-      - job: plan_dev
-        displayName: "Plan Dev Infrastructure"
+      - job: plan
+        displayName: "Plan Infrastructure"
         pool:
           vmImage: "ubuntu-latest"
         steps:
@@ -149,7 +149,7 @@ stages:
             displayName: "Install Terragrunt"
 
           - task: AzureCLI@2
-            displayName: "Terragrunt Plan Dev"
+            displayName: "Terragrunt Plan"
             inputs:
               azureSubscription: $(azureSubscription)
               scriptType: "bash"
@@ -160,177 +160,48 @@ stages:
                 export ARM_CLIENT_SECRET=$servicePrincipalKey
                 export ARM_TENANT_ID=$tenantId
                 export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
-
-                echo "=== DEBUG INFO ==="
-                echo "TF_BACKEND_STORAGE_ACCOUNT from pipeline: '$(TF_BACKEND_STORAGE_ACCOUNT)'"
-                echo "Environment variables:"
-                env | grep TF_ || echo "No TF_ variables found"
-                echo "=================="
-
-                echo "Pipeline TF_BACKEND_STORAGE_ACCOUNT: '$(TF_BACKEND_STORAGE_ACCOUNT)'"
                 export TF_BACKEND_STORAGE_ACCOUNT=$(TF_BACKEND_STORAGE_ACCOUNT)
 
-                echo "Logged in as: $(az account show --query user.name -o tsv)"
-                echo "Subscription: $(az account show --query name -o tsv)"
+                ENV='${{ parameters.targetEnvironment }}'
+                DEPLOY='${{ parameters.deploymentName }}'
+
+                echo "Environment: $ENV"
+                echo "Deployment: $DEPLOY"
                 echo "Backend storage account: '$TF_BACKEND_STORAGE_ACCOUNT'"
 
-                cd "live/1. dev"
-                terragrunt init
-                terragrunt plan -out=$(Build.ArtifactStagingDirectory)/dev-tfplan
+                if [ "$ENV" = "dev" ]; then
+                  cd "live/1. dev"
+                elif [ "$ENV" = "stage" ]; then
+                  cd "live/2. stage"
+                else
+                  cd "live/3. prod"
+                fi
+
+                KEY="$ENV/$DEPLOY.tfstate"
+                echo "Using backend key: $KEY"
+
+                terragrunt init -backend-config="storage_account_name=$TF_BACKEND_STORAGE_ACCOUNT" -backend-config="key=$KEY"
+                terragrunt plan -out="$(Build.ArtifactStagingDirectory)/$ENV-$DEPLOY-tfplan"
 
                 echo "Plan completed successfully"
 
           - task: PublishBuildArtifacts@1
-            displayName: "Publish Dev Plan Artifacts"
+            displayName: "Publish Plan Artifact"
             inputs:
               PathtoPublish: "$(Build.ArtifactStagingDirectory)"
-              ArtifactName: "dev-plan"
+              ArtifactName: "tfplan"
               publishLocation: "Container"
 
-  # ==================== PLAN STAGE STAGE ====================
-  - stage: plan_stage
-    displayName: "Plan Stage Environment"
+  # ==================== APPLY STAGE ====================
+  - stage: apply
+    displayName: "Apply Terraform"
     dependsOn:
       - bootstrap
-      - validate
+      - plan
     condition: succeeded()
-    variables:
-      TF_BACKEND_STORAGE_ACCOUNT: $[ stageDependencies.bootstrap.bootstrap.outputs['bootstrapOutputs.TF_BACKEND_STORAGE_ACCOUNT'] ]
     jobs:
-      - job: plan_stage
-        displayName: "Plan Stage Infrastructure"
-        pool:
-          vmImage: "ubuntu-latest"
-        steps:
-          - checkout: self
-            persistCredentials: true
-
-          - script: |
-              echo "Installing Terraform $(terraformVersion)..."
-              wget -O terraform.zip https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip
-              unzip terraform.zip
-              sudo mv terraform /usr/local/bin/
-              terraform --version
-            displayName: "Install Terraform"
-
-          - script: |
-              echo "Installing Terragrunt $(terragruntVersion)..."
-              wget -O terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v$(terragruntVersion)/terragrunt_linux_amd64
-              chmod +x terragrunt
-              sudo mv terragrunt /usr/local/bin/
-              terragrunt --version
-            displayName: "Install Terragrunt"
-
-          - task: AzureCLI@2
-            displayName: "Terragrunt Plan Stage"
-            inputs:
-              azureSubscription: $(azureSubscription)
-              scriptType: "bash"
-              scriptLocation: "inlineScript"
-              addSpnToEnvironment: true
-              inlineScript: |
-                export ARM_CLIENT_ID=$servicePrincipalId
-                export ARM_CLIENT_SECRET=$servicePrincipalKey
-                export ARM_TENANT_ID=$tenantId
-                export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
-
-                echo "Pipeline TF_BACKEND_STORAGE_ACCOUNT: '$(TF_BACKEND_STORAGE_ACCOUNT)'"
-                export TF_BACKEND_STORAGE_ACCOUNT=$(TF_BACKEND_STORAGE_ACCOUNT)
-
-                echo "Logged in as: $(az account show --query user.name -o tsv)"
-                echo "Subscription: $(az account show --query name -o tsv)"
-                echo "Backend storage account: '$TF_BACKEND_STORAGE_ACCOUNT'"
-
-                cd "live/2. stage"
-                terragrunt init
-                terragrunt plan -out=$(Build.ArtifactStagingDirectory)/stage-tfplan
-
-                echo "Plan completed successfully"
-
-          - task: PublishBuildArtifacts@1
-            displayName: "Publish Stage Plan Artifacts"
-            inputs:
-              PathtoPublish: "$(Build.ArtifactStagingDirectory)"
-              ArtifactName: "stage-plan"
-              publishLocation: "Container"
-
-  # ==================== PLAN PROD STAGE ====================
-  - stage: plan_prod
-    displayName: "Plan Prod Environment"
-    dependsOn:
-      - bootstrap
-      - validate
-    condition: succeeded()
-    variables:
-      TF_BACKEND_STORAGE_ACCOUNT: $[ stageDependencies.bootstrap.bootstrap.outputs['bootstrapOutputs.TF_BACKEND_STORAGE_ACCOUNT'] ]
-    jobs:
-      - job: plan_prod
-        displayName: "Plan Prod Infrastructure"
-        pool:
-          vmImage: "ubuntu-latest"
-        steps:
-          - checkout: self
-            persistCredentials: true
-
-          - script: |
-              echo "Installing Terraform $(terraformVersion)..."
-              wget -O terraform.zip https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip
-              unzip terraform.zip
-              sudo mv terraform /usr/local/bin/
-              terraform --version
-            displayName: "Install Terraform"
-
-          - script: |
-              echo "Installing Terragrunt $(terragruntVersion)..."
-              wget -O terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v$(terragruntVersion)/terragrunt_linux_amd64
-              chmod +x terragrunt
-              sudo mv terragrunt /usr/local/bin/
-              terragrunt --version
-            displayName: "Install Terragrunt"
-
-          - task: AzureCLI@2
-            displayName: "Terragrunt Plan Prod"
-            inputs:
-              azureSubscription: $(azureSubscription)
-              scriptType: "bash"
-              scriptLocation: "inlineScript"
-              addSpnToEnvironment: true
-              inlineScript: |
-                export ARM_CLIENT_ID=$servicePrincipalId
-                export ARM_CLIENT_SECRET=$servicePrincipalKey
-                export ARM_TENANT_ID=$tenantId
-                export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
-
-                echo "Pipeline TF_BACKEND_STORAGE_ACCOUNT: '$(TF_BACKEND_STORAGE_ACCOUNT)'"
-                export TF_BACKEND_STORAGE_ACCOUNT=$(TF_BACKEND_STORAGE_ACCOUNT)
-
-                echo "Logged in as: $(az account show --query user.name -o tsv)"
-                echo "Subscription: $(az account show --query name -o tsv)"
-                echo "Backend storage account: '$TF_BACKEND_STORAGE_ACCOUNT'"
-
-                cd "live/3. prod"
-                terragrunt init
-                terragrunt plan -out=$(Build.ArtifactStagingDirectory)/prod-tfplan
-
-                echo "Plan completed successfully"
-
-          - task: PublishBuildArtifacts@1
-            displayName: "Publish Prod Plan Artifacts"
-            inputs:
-              PathtoPublish: "$(Build.ArtifactStagingDirectory)"
-              ArtifactName: "prod-plan"
-              publishLocation: "Container"
-
-  # ==================== APPLY DEV STAGE ====================
-  - stage: apply_dev
-    displayName: "Apply Dev Environment"
-    dependsOn: plan_dev
-    condition: succeeded()
-    variables:
-      TF_BACKEND_STORAGE_ACCOUNT: $[ stageDependencies.bootstrap.bootstrap.outputs['bootstrapOutputs.TF_BACKEND_STORAGE_ACCOUNT'] ]
-    jobs:
-      - job: apply_dev
-        displayName: "Apply Dev Infrastructure"
+      - job: apply
+        displayName: "Apply Infrastructure"
         pool:
           vmImage: "ubuntu-latest"
         steps:
@@ -338,11 +209,11 @@ stages:
             persistCredentials: true
 
           - task: DownloadBuildArtifacts@0
-            displayName: "Download Dev Plan"
+            displayName: "Download Plan Artifact"
             inputs:
               buildType: "current"
               downloadType: "single"
-              artifactName: "dev-plan"
+              artifactName: "tfplan"
               downloadPath: "$(Pipeline.Workspace)"
 
           - script: |
@@ -362,7 +233,7 @@ stages:
             displayName: "Install Terragrunt"
 
           - task: AzureCLI@2
-            displayName: "Terragrunt Apply Dev"
+            displayName: "Terragrunt Apply"
             inputs:
               azureSubscription: $(azureSubscription)
               scriptType: "bash"
@@ -373,50 +244,44 @@ stages:
                 export ARM_CLIENT_SECRET=$servicePrincipalKey
                 export ARM_TENANT_ID=$tenantId
                 export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
-
-                echo "=== DEBUG INFO ==="
-                echo "TF_BACKEND_STORAGE_ACCOUNT from pipeline: '$(TF_BACKEND_STORAGE_ACCOUNT)'"
-                echo "Environment variables:"
-                env | grep TF_ || echo "No TF_ variables found"
-                echo "=================="
-
-                echo "Pipeline TF_BACKEND_STORAGE_ACCOUNT: '$(TF_BACKEND_STORAGE_ACCOUNT)'"
                 export TF_BACKEND_STORAGE_ACCOUNT=$(TF_BACKEND_STORAGE_ACCOUNT)
 
-                echo "Applying infrastructure for Dev environment..."
-                echo "Backend storage account: '$TF_BACKEND_STORAGE_ACCOUNT'"
+                ENV='${{ parameters.targetEnvironment }}'
+                DEPLOY='${{ parameters.deploymentName }}'
+                KEY="$ENV/$DEPLOY.tfstate"
 
-                cd "live/1. dev"
-                terragrunt init
-                terragrunt apply "$(Pipeline.Workspace)/dev-plan/dev-tfplan"
+                echo "Environment: $ENV"
+                echo "Deployment: $DEPLOY"
+                echo "Backend storage account: '$TF_BACKEND_STORAGE_ACCOUNT'"
+                echo "Using backend key: $KEY"
+
+                if [ "$ENV" = "dev" ]; then
+                  cd "live/1. dev"
+                elif [ "$ENV" = "stage" ]; then
+                  cd "live/2. stage"
+                else
+                  cd "live/3. prod"
+                fi
+
+                terragrunt init -backend-config="storage_account_name=$TF_BACKEND_STORAGE_ACCOUNT" -backend-config="key=$KEY"
+                terragrunt apply "$(Pipeline.Workspace)/tfplan/$ENV-$DEPLOY-tfplan"
 
                 echo "Apply completed successfully"
 
-  # ==================== APPLY STAGE STAGE ====================
-  - stage: apply_stage
-    displayName: "Apply Stage Environment"
+  # ==================== DESTROY STAGE ====================
+  - stage: destroy
+    displayName: "Destroy Terraform"
     dependsOn:
-      - plan_stage
-      - apply_dev
-    condition: succeeded()
-    variables:
-      TF_BACKEND_STORAGE_ACCOUNT: $[ stageDependencies.bootstrap.bootstrap.outputs['bootstrapOutputs.TF_BACKEND_STORAGE_ACCOUNT'] ]
+      - bootstrap
+    condition: always()
     jobs:
-      - job: apply_stage
-        displayName: "Apply Stage Infrastructure"
+      - job: destroy
+        displayName: "Destroy Infrastructure"
         pool:
           vmImage: "ubuntu-latest"
         steps:
           - checkout: self
             persistCredentials: true
-
-          - task: DownloadBuildArtifacts@0
-            displayName: "Download Stage Plan"
-            inputs:
-              buildType: "current"
-              downloadType: "single"
-              artifactName: "stage-plan"
-              downloadPath: "$(Pipeline.Workspace)"
 
           - script: |
               echo "Installing Terraform $(terraformVersion)..."
@@ -435,7 +300,7 @@ stages:
             displayName: "Install Terragrunt"
 
           - task: AzureCLI@2
-            displayName: "Terragrunt Apply Stage"
+            displayName: "Terragrunt Destroy"
             inputs:
               azureSubscription: $(azureSubscription)
               scriptType: "bash"
@@ -446,82 +311,26 @@ stages:
                 export ARM_CLIENT_SECRET=$servicePrincipalKey
                 export ARM_TENANT_ID=$tenantId
                 export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
-
-                echo "Pipeline TF_BACKEND_STORAGE_ACCOUNT: '$(TF_BACKEND_STORAGE_ACCOUNT)'"
                 export TF_BACKEND_STORAGE_ACCOUNT=$(TF_BACKEND_STORAGE_ACCOUNT)
 
-                echo "Applying infrastructure for Stage environment..."
+                ENV='${{ parameters.targetEnvironment }}'
+                DEPLOY='${{ parameters.deploymentName }}'
+                KEY="$ENV/$DEPLOY.tfstate"
+
+                echo "DESTROY environment: $ENV"
+                echo "DESTROY deployment: $DEPLOY"
                 echo "Backend storage account: '$TF_BACKEND_STORAGE_ACCOUNT'"
+                echo "Using backend key: $KEY"
 
-                cd "live/2. stage"
-                terragrunt init
-                terragrunt apply "$(Pipeline.Workspace)/stage-plan/stage-tfplan"
+                if [ "$ENV" = "dev" ]; then
+                  cd "live/1. dev"
+                elif [ "$ENV" = "stage" ]; then
+                  cd "live/2. stage"
+                else
+                  cd "live/3. prod"
+                fi
 
-                echo "Apply completed successfully"
+                terragrunt init -backend-config="storage_account_name=$TF_BACKEND_STORAGE_ACCOUNT" -backend-config="key=$KEY"
+                terragrunt destroy -auto-approve
 
-  # ==================== APPLY PROD STAGE ====================
-  - stage: apply_prod
-    displayName: "Apply Prod Environment"
-    dependsOn:
-      - plan_prod
-      - apply_stage
-    condition: succeeded()
-    variables:
-      TF_BACKEND_STORAGE_ACCOUNT: $[ stageDependencies.bootstrap.bootstrap.outputs['bootstrapOutputs.TF_BACKEND_STORAGE_ACCOUNT'] ]
-    jobs:
-      - job: apply_prod
-        displayName: "Apply Prod Infrastructure"
-        pool:
-          vmImage: "ubuntu-latest"
-        steps:
-          - checkout: self
-            persistCredentials: true
-
-          - task: DownloadBuildArtifacts@0
-            displayName: "Download Prod Plan"
-            inputs:
-              buildType: "current"
-              downloadType: "single"
-              artifactName: "prod-plan"
-              downloadPath: "$(Pipeline.Workspace)"
-
-          - script: |
-              echo "Installing Terraform $(terraformVersion)..."
-              wget -O terraform.zip https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip
-              unzip terraform.zip
-              sudo mv terraform /usr/local/bin/
-              terraform --version
-            displayName: "Install Terraform"
-
-          - script: |
-              echo "Installing Terragrunt $(terragruntVersion)..."
-              wget -O terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v$(terragruntVersion)/terragrunt_linux_amd64
-              chmod +x terragrunt
-              sudo mv terragrunt /usr/local/bin/
-              terragrunt --version
-            displayName: "Install Terragrunt"
-
-          - task: AzureCLI@2
-            displayName: "Terragrunt Apply Prod"
-            inputs:
-              azureSubscription: $(azureSubscription)
-              scriptType: "bash"
-              scriptLocation: "inlineScript"
-              addSpnToEnvironment: true
-              inlineScript: |
-                export ARM_CLIENT_ID=$servicePrincipalId
-                export ARM_CLIENT_SECRET=$servicePrincipalKey
-                export ARM_TENANT_ID=$tenantId
-                export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
-
-                echo "Pipeline TF_BACKEND_STORAGE_ACCOUNT: '$(TF_BACKEND_STORAGE_ACCOUNT)'"
-                export TF_BACKEND_STORAGE_ACCOUNT=$(TF_BACKEND_STORAGE_ACCOUNT)
-
-                echo "Applying infrastructure for Prod environment..."
-                echo "Backend storage account: '$TF_BACKEND_STORAGE_ACCOUNT'"
-
-                cd "live/3. prod"
-                terragrunt init
-                terragrunt apply "$(Pipeline.Workspace)/prod-plan/prod-tfplan"
-
-                echo "Apply completed successfully"
+                echo "Destroy completed successfully"

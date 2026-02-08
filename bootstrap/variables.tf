@@ -1,7 +1,7 @@
 variable "resource_group_name" {
   description = "Name of the resource group for Terraform state"
   type        = string
-  default     = "RCA-AZ-RG-SNDBX-TEST"
+  default     = "RCA-AZ-RG-TFSTATES"
 }
 
 variable "location" {
@@ -18,6 +18,17 @@ variable "storage_account_prefix" {
   validation {
     condition     = length(var.storage_account_prefix) <= 16 && can(regex("^[a-z0-9]+$", var.storage_account_prefix))
     error_message = "Storage account prefix must be lowercase alphanumeric and max 16 chars."
+  }
+}
+
+variable "storage_account_name" {
+  description = "Full name of the storage account (optional, will be generated if not provided)"
+  type        = string
+  default     = null
+
+  validation {
+    condition     = var.storage_account_name == null || (length(var.storage_account_name) >= 3 && length(var.storage_account_name) <= 24 && can(regex("^[a-z0-9]+$", var.storage_account_name)))
+    error_message = "Storage account name must be lowercase alphanumeric, between 3-24 characters."
   }
 }
 
