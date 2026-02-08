@@ -1,13 +1,5 @@
+# Disable automatic triggers - pipeline runs only on manual trigger
 trigger: none
-  # branches:
-  #   include:
-  #     - main
-  #     - develop
-  paths:
-    include:
-      - "**/*.tf"
-      - "**/*.hcl"
-      - "**/terragrunt.hcl"
 
 pr:
   branches:
