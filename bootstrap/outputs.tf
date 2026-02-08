@@ -26,7 +26,7 @@ output "storage_account_id" {
 
 output "storage_account_primary_access_key" {
   description = "Primary access key for the storage account"
-  value       = local.storage_account_primary_key
+  value       = data.external.sa_check.result.exists == "true" ? data.azurerm_storage_account.existing[0].primary_access_key : azurerm_storage_account.tfstate[0].primary_access_key
   sensitive   = true
 }
 
@@ -38,9 +38,4 @@ output "resource_group_created" {
 output "storage_account_created" {
   description = "Whether the storage account was created (true) or already existed (false)"
   value       = data.external.sa_check.result.exists == "false"
-}
-
-output "container_created" {
-  description = "Whether the container was created (true) or already existed (false)"
-  value       = data.external.container_check.result.exists == "false"
 }
