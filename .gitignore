@@ -3,10 +3,15 @@
 *.tfstate.*
 *.tfstate.backup
 .terraform/
+.terraform.lock.hcl
 *.tfvars
 *.tfplan
 .terragrunt-cache/
 terragrunt.hcl.tmp
+
+# Terragrunt generated files
+backend.tf
+provider.tf
 
 # Crash log files
 crash.log
