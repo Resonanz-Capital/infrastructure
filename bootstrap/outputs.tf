@@ -16,7 +16,7 @@ output "storage_account_name" {
 
 output "container_name" {
   description = "Name of the storage container"
-  value       = var.container_name
+  value       = local.container_name
 }
 
 output "storage_account_id" {
@@ -41,6 +41,6 @@ output "storage_account_created" {
 }
 
 output "container_created" {
-  description = "Whether the container was created - always managed by Terraform"
-  value       = true
+  description = "Whether the container was created (true) or already existed (false)"
+  value       = data.external.container_check.result.exists == "false"
 }

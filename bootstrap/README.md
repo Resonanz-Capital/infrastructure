@@ -61,7 +61,8 @@ The bootstrap stage will:
 | `location` | Azure region | `westeurope` | No |
 | `storage_account_prefix` | Prefix for storage account name | `tfstate` | No |
 | `storage_account_name` | Full storage account name (optional) | `null` | No |
-| `container_name` | Name of the blob container | `tfstate` | No |
+| `deployment_name` | Deployment name for unique container | `default` | No |
+| `container_name` | Full container name (optional, generated from deployment_name if not set) | `null` | No |
 
 ### Custom Configuration
 
@@ -71,7 +72,28 @@ Create a `terraform.tfvars` file to override defaults:
 resource_group_name    = "my-rg-tfstate"
 location              = "northeurope"
 storage_account_name  = "mystorageaccount123"
-container_name        = "tfstate"
+deployment_name       = "prod-env"
+```
+
+**Note on Container Names:**
+- If you don't specify `container_name`, it will be auto-generated as `tfstate-{deployment_name}`
+- For example, with `deployment_name = "prod-env"`, the container will be `tfstate-prod-env`
+- This ensures each deployment has its own unique container for state isolation
+- If you prefer a specific container name, set `container_name` explicitly
+
+**Examples:**
+
+```hcl
+# Example 1: Multiple environments with unique containers
+deployment_name = "dev"      # Creates container: tfstate-dev
+# deployment_name = "staging" # Creates container: tfstate-staging
+# deployment_name = "prod"    # Creates container: tfstate-prod
+
+# Example 2: Explicit container name (overrides deployment_name)
+container_name = "my-custom-tfstate"
+
+# Example 3: Default behavior
+# deployment_name defaults to "default" → container: tfstate-default
 ```
 
 ## Outputs

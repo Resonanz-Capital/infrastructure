@@ -127,12 +127,32 @@ data "azurerm_storage_account" "existing" {
 # Get the actual storage account ID (determine which one to use)
 locals {
   storage_account_id = data.external.sa_check.result.exists == "true" ? data.azurerm_storage_account.existing[0].id : azurerm_storage_account.tfstate[0].id
+  # Generate container name from deployment_name if not provided
+  container_name = var.container_name != null ? var.container_name : "tfstate-${var.deployment_name}"
 }
 
-# Create blob container for state files
-# We manage this unconditionally - Terraform will create it if it doesn't exist
+# Check if container exists using Azure CLI
+data "external" "container_check" {
+  program = ["bash", "-c", <<-EOT
+    if az storage container show --name '${local.container_name}' --account-name '${local.storage_account_name}' &>/dev/null; then
+      echo '{"exists":"true"}'
+    else
+      echo '{"exists":"false"}'
+    fi
+  EOT
+  ]
+
+  depends_on = [
+    azurerm_storage_account.tfstate,
+    data.azurerm_storage_account.existing
+  ]
+}
+
+# Create blob container for state files only if it doesn't exist
 resource "azurerm_storage_container" "tfstate" {
-  name                  = var.container_name
+  count = data.external.container_check.result.exists == "false" ? 1 : 0
+
+  name                  = local.container_name
   storage_account_id    = local.storage_account_id
   container_access_type = "private"
 
@@ -140,4 +160,11 @@ resource "azurerm_storage_container" "tfstate" {
     azurerm_storage_account.tfstate,
     data.azurerm_storage_account.existing
   ]
+}
+
+# Get existing container data if it exists
+data "azurerm_storage_container" "existing" {
+  count              = data.external.container_check.result.exists == "true" ? 1 : 0
+  name               = local.container_name
+  storage_account_id = local.storage_account_id
 }

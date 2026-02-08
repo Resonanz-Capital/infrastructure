@@ -32,8 +32,19 @@ variable "storage_account_name" {
   }
 }
 
-variable "container_name" {
-  description = "Name of the blob container for state files"
+variable "deployment_name" {
+  description = "Name of the deployment (used to create unique container names)"
   type        = string
-  default     = "tfstate"
+  default     = "default"
+
+  validation {
+    condition     = can(regex("^[a-z0-9-]{3,63}$", var.deployment_name))
+    error_message = "Deployment name must be lowercase alphanumeric with hyphens, between 3-63 characters."
+  }
+}
+
+variable "container_name" {
+  description = "Name of the blob container for state files (optional, will be generated from deployment_name if not provided)"
+  type        = string
+  default     = null
 }
