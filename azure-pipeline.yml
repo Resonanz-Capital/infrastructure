@@ -287,9 +287,7 @@ stages:
     displayName: "Destroy Terraform"
     dependsOn:
       - bootstrap
-      - plan
-      - apply
-    condition: and(succeeded(), eq(variables['runDestroy'], 'true'))
+    condition: eq('${{ parameters.runDestroy }}', 'true')
     jobs:
       - job: destroy
         displayName: "Destroy Infrastructure"
