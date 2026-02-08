@@ -182,13 +182,21 @@ stages:
                   cd "live/3. prod"
                 fi
 
-                KEY="$ENV/$DEPLOY.tfstate"
-                echo "Using backend key: $KEY"
+                echo "==========================================="
+                echo "Planning all modules in environment: $ENV"
+                echo "==========================================="
 
-                terragrunt init -backend-config="storage_account_name=$TF_BACKEND_STORAGE_ACCOUNT" -backend-config="container_name=$TF_BACKEND_CONTAINER_NAME" -backend-config="key=$KEY"
-                terragrunt plan -out="$(Build.ArtifactStagingDirectory)/$ENV-$DEPLOY-tfplan"
+                # List all modules that will be planned
+                echo "Modules to be planned:"
+                find . -maxdepth 1 -type d ! -name "." ! -name ".terraform" | sort
 
-                echo "Plan completed successfully"
+                # Run terragrunt run-all to handle all modules with dependencies
+                echo "Running terragrunt run-all plan..."
+                terragrunt run-all plan --terragrunt-non-interactive
+
+                echo "==========================================="
+                echo "Plan completed successfully for all modules"
+                echo "==========================================="
 
           - task: PublishBuildArtifacts@1
             displayName: "Publish Plan Artifact"
@@ -272,10 +280,21 @@ stages:
                   cd "live/3. prod"
                 fi
 
-                terragrunt init -backend-config="storage_account_name=$TF_BACKEND_STORAGE_ACCOUNT" -backend-config="container_name=$TF_BACKEND_CONTAINER_NAME" -backend-config="key=$KEY"
-                terragrunt apply "$(Pipeline.Workspace)/tfplan/$ENV-$DEPLOY-tfplan"
+                echo "==========================================="
+                echo "Applying all modules in environment: $ENV"
+                echo "==========================================="
 
-                echo "Apply completed successfully"
+                # List all modules that will be applied
+                echo "Modules to be applied:"
+                find . -maxdepth 1 -type d ! -name "." ! -name ".terraform" | sort
+
+                # Run terragrunt run-all to handle all modules with dependencies
+                echo "Running terragrunt run-all apply..."
+                terragrunt run-all apply --terragrunt-non-interactive
+
+                echo "==========================================="
+                echo "Apply completed successfully for all modules"
+                echo "==========================================="
 
   # ==================== DESTROY STAGE ====================
   # This stage only runs when manually triggered with runDestroy=true
@@ -346,7 +365,18 @@ stages:
                   cd "live/3. prod"
                 fi
 
-                terragrunt init -backend-config="storage_account_name=$TF_BACKEND_STORAGE_ACCOUNT" -backend-config="container_name=$TF_BACKEND_CONTAINER_NAME" -backend-config="key=$KEY"
-                terragrunt destroy -auto-approve
+                echo "==========================================="
+                echo "Destroying all modules in environment: $ENV"
+                echo "==========================================="
 
-                echo "Destroy completed successfully"
+                # List all modules that will be destroyed
+                echo "Modules to be destroyed:"
+                find . -maxdepth 1 -type d ! -name "." ! -name ".terraform" | sort
+
+                # Run terragrunt run-all to handle all modules with dependencies (in reverse order)
+                echo "Running terragrunt run-all destroy..."
+                terragrunt run-all destroy --terragrunt-non-interactive
+
+                echo "==========================================="
+                echo "Destroy completed successfully for all modules"
+                echo "==========================================="
