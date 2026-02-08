@@ -33,4 +33,9 @@ EOF
 inputs = {
   location = "westeurope"
   project  = "resonanz-tmpl"
+  tags = {
+    Owner      = "DevOps"
+    CostCenter = "IT"
+    ManagedBy  = "Terraform"
+  }
 }

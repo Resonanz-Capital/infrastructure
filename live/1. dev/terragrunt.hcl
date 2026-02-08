@@ -9,6 +9,7 @@ inputs = {
   vm_size             = "Standard_B2s" # Най-малък и евтин размер за разработка
   vm_count            = 2              # Само 2 виртуални машини в dev
   tags = {
+    Owner      = "DevOps-Dev"
     CostCenter = "R&D"
   }
 }

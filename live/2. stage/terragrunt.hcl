@@ -9,6 +9,7 @@ inputs = {
   vm_size             = "Standard_B2ms" # По-голям размер за staging
   vm_count            = 3               # 3 виртуални машини в stage
   tags = {
+    Owner      = "DevOps-Stage"
     CostCenter = "Staging"
   }
 }
