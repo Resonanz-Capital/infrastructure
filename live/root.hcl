@@ -30,7 +30,6 @@ EOF
 }
 
 inputs = {
-  location            = "westeurope"
-  project             = "resonanz-tmpl"
-  resource_group_name = "RCA-AZ-RG-SNDBX-TEST"
+  location = "westeurope"
+  project  = "resonanz-tmpl"
 }
