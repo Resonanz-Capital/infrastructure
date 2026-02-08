@@ -12,6 +12,9 @@ terragrunt.hcl.tmp
 # Terragrunt generated files
 backend.tf
 provider.tf
+plan-debug.log
+tg.tmp
+*.tmp
 
 # Crash log files
 crash.log
