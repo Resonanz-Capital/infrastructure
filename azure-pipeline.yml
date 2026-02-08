@@ -190,18 +190,21 @@ stages:
                 echo "Modules to be planned:"
                 find . -maxdepth 1 -type d ! -name "." ! -name ".terraform" | sort
 
+                # Create directory for plan files
+                mkdir -p "$(Build.ArtifactStagingDirectory)/plans"
+
                 # Run terragrunt run-all to handle all modules with dependencies
-                echo "Running terragrunt run-all plan..."
-                terragrunt run-all plan --terragrunt-non-interactive
+                echo "Running terragrunt run-all plan with output to artifact staging..."
+                terragrunt run-all plan --terragrunt-non-interactive -- -out="$(Build.ArtifactStagingDirectory)/plans/tfplan"
 
                 echo "==========================================="
                 echo "Plan completed successfully for all modules"
                 echo "==========================================="
 
           - task: PublishBuildArtifacts@1
-            displayName: "Publish Plan Artifact"
+            displayName: "Publish Plan Artifacts"
             inputs:
-              PathtoPublish: "$(Build.ArtifactStagingDirectory)"
+              PathtoPublish: "$(Build.ArtifactStagingDirectory)/plans"
               ArtifactName: "tfplan"
               publishLocation: "Container"
 
@@ -288,9 +291,17 @@ stages:
                 echo "Modules to be applied:"
                 find . -maxdepth 1 -type d ! -name "." ! -name ".terraform" | sort
 
-                # Run terragrunt run-all to handle all modules with dependencies
-                echo "Running terragrunt run-all apply..."
-                terragrunt run-all apply --terragrunt-non-interactive
+                # Check if plan files exist
+                if [ -d "$(Pipeline.Workspace)/tfplan" ]; then
+                  echo "Plan artifacts found, using saved plans..."
+
+                  # Run terragrunt run-all apply with the saved plan files
+                  echo "Running terragrunt run-all apply with saved plan..."
+                  terragrunt run-all apply --terragrunt-non-interactive -- "$(Pipeline.Workspace)/tfplan/tfplan"
+                else
+                  echo "No plan artifacts found, running apply without plan file..."
+                  terragrunt run-all apply --terragrunt-non-interactive
+                fi
 
                 echo "==========================================="
                 echo "Apply completed successfully for all modules"
