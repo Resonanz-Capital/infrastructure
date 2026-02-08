@@ -11,7 +11,7 @@ remote_state {
   }
 
   config = {
-    resource_group_name  = "RCA-AZ-RG-SNDBX-TEST"
+    resource_group_name  = "RCA-AZ-RG-TFSTATES"
     storage_account_name = local.storage_account_name
     container_name       = "tfstate"
     key                  = "${path_relative_to_include()}/terraform.tfstate"
