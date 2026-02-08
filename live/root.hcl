@@ -1,5 +1,6 @@
 locals {
   storage_account_name = get_env("TF_BACKEND_STORAGE_ACCOUNT")
+  container_name       = get_env("TF_BACKEND_CONTAINER_NAME", "tfstate")
 }
 
 remote_state {
@@ -13,7 +14,7 @@ remote_state {
   config = {
     resource_group_name  = "RCA-AZ-RG-TFSTATES"
     storage_account_name = local.storage_account_name
-    container_name       = "tfstate"
+    container_name       = local.container_name
     key                  = "${path_relative_to_include()}/terraform.tfstate"
   }
 }

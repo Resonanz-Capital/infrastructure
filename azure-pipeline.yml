@@ -41,7 +41,7 @@ variables:
   - name: azureSubscription
     value: "azure-sirma-terraform"
   - name: TF_BACKEND_STORAGE_ACCOUNT
-    value: "tfstate0182323" # смени тук с реалния tfstate storage account
+    value: "tfstatebc957e20" # Real storage account from bootstrap
 
 stages:
   # ==================== BOOTSTRAP STAGE ====================
@@ -85,12 +85,16 @@ stages:
 
                 cd bootstrap
 
+                # Get deployment name from pipeline parameter
+                DEPLOYMENT_NAME="${{ parameters.deploymentName }}"
+                echo "Deployment Name: $DEPLOYMENT_NAME"
+
                 # Initialize Terraform (no backend needed for bootstrap)
                 terraform init
 
-                # Plan the changes
+                # Plan the changes with deployment_name variable
                 echo "Planning bootstrap resources..."
-                terraform plan -out=bootstrap.tfplan
+                terraform plan -var="deployment_name=$DEPLOYMENT_NAME" -out=bootstrap.tfplan
 
                 # Apply the changes
                 echo "Applying bootstrap resources..."
@@ -162,9 +166,13 @@ stages:
                 ENV='${{ parameters.targetEnvironment }}'
                 DEPLOY='${{ parameters.deploymentName }}'
 
+                # Set container name based on deployment
+                export TF_BACKEND_CONTAINER_NAME="tfstate-$DEPLOY"
+
                 echo "Environment: $ENV"
                 echo "Deployment: $DEPLOY"
                 echo "Backend storage account: '$TF_BACKEND_STORAGE_ACCOUNT'"
+                echo "Backend container: '$TF_BACKEND_CONTAINER_NAME'"
 
                 if [ "$ENV" = "dev" ]; then
                   cd "live/1. dev"
@@ -177,7 +185,7 @@ stages:
                 KEY="$ENV/$DEPLOY.tfstate"
                 echo "Using backend key: $KEY"
 
-                terragrunt init -backend-config="storage_account_name=$TF_BACKEND_STORAGE_ACCOUNT" -backend-config="key=$KEY"
+                terragrunt init -backend-config="storage_account_name=$TF_BACKEND_STORAGE_ACCOUNT" -backend-config="container_name=$TF_BACKEND_CONTAINER_NAME" -backend-config="key=$KEY"
                 terragrunt plan -out="$(Build.ArtifactStagingDirectory)/$ENV-$DEPLOY-tfplan"
 
                 echo "Plan completed successfully"
@@ -247,9 +255,13 @@ stages:
                 DEPLOY='${{ parameters.deploymentName }}'
                 KEY="$ENV/$DEPLOY.tfstate"
 
+                # Set container name based on deployment
+                export TF_BACKEND_CONTAINER_NAME="tfstate-$DEPLOY"
+
                 echo "Environment: $ENV"
                 echo "Deployment: $DEPLOY"
                 echo "Backend storage account: '$TF_BACKEND_STORAGE_ACCOUNT'"
+                echo "Backend container: '$TF_BACKEND_CONTAINER_NAME'"
                 echo "Using backend key: $KEY"
 
                 if [ "$ENV" = "dev" ]; then
@@ -260,7 +272,7 @@ stages:
                   cd "live/3. prod"
                 fi
 
-                terragrunt init -backend-config="storage_account_name=$TF_BACKEND_STORAGE_ACCOUNT" -backend-config="key=$KEY"
+                terragrunt init -backend-config="storage_account_name=$TF_BACKEND_STORAGE_ACCOUNT" -backend-config="container_name=$TF_BACKEND_CONTAINER_NAME" -backend-config="key=$KEY"
                 terragrunt apply "$(Pipeline.Workspace)/tfplan/$ENV-$DEPLOY-tfplan"
 
                 echo "Apply completed successfully"
@@ -317,9 +329,13 @@ stages:
                 DEPLOY='${{ parameters.deploymentName }}'
                 KEY="$ENV/$DEPLOY.tfstate"
 
+                # Set container name based on deployment
+                export TF_BACKEND_CONTAINER_NAME="tfstate-$DEPLOY"
+
                 echo "DESTROY environment: $ENV"
                 echo "DESTROY deployment: $DEPLOY"
                 echo "Backend storage account: '$TF_BACKEND_STORAGE_ACCOUNT'"
+                echo "Backend container: '$TF_BACKEND_CONTAINER_NAME'"
                 echo "Using backend key: $KEY"
 
                 if [ "$ENV" = "dev" ]; then
@@ -330,7 +346,7 @@ stages:
                   cd "live/3. prod"
                 fi
 
-                terragrunt init -backend-config="storage_account_name=$TF_BACKEND_STORAGE_ACCOUNT" -backend-config="key=$KEY"
+                terragrunt init -backend-config="storage_account_name=$TF_BACKEND_STORAGE_ACCOUNT" -backend-config="container_name=$TF_BACKEND_CONTAINER_NAME" -backend-config="key=$KEY"
                 terragrunt destroy -auto-approve
 
                 echo "Destroy completed successfully"
