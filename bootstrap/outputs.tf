@@ -26,41 +26,21 @@ output "storage_account_id" {
 
 output "storage_account_primary_access_key" {
   description = "Primary access key for the storage account"
-<<<<<<< HEAD
   value       = local.storage_account_primary_key
   sensitive   = true
-=======
-  value = try(
-    data.azurerm_storage_account.existing[0].primary_access_key,
-    azurerm_storage_account.tfstate[0].primary_access_key
-  )
-  sensitive = true
->>>>>>> f9c9509021a3dc4c354a953fa7b26904b41853d7
 }
 
 output "resource_group_created" {
   description = "Whether the resource group was created (true) or already existed (false)"
-<<<<<<< HEAD
   value       = data.external.rg_check.result.exists == "false"
-=======
-  value       = try(data.azurerm_resource_group.existing[0].id, null) == null
->>>>>>> f9c9509021a3dc4c354a953fa7b26904b41853d7
 }
 
 output "storage_account_created" {
   description = "Whether the storage account was created (true) or already existed (false)"
-<<<<<<< HEAD
   value       = data.external.sa_check.result.exists == "false"
-=======
-  value       = try(data.azurerm_storage_account.existing[0].id, null) == null
->>>>>>> f9c9509021a3dc4c354a953fa7b26904b41853d7
 }
 
 output "container_created" {
   description = "Whether the container was created (true) or already existed (false)"
-<<<<<<< HEAD
   value       = data.external.container_check.result.exists == "false"
-=======
-  value       = try(data.azurerm_storage_container.existing[0].id, null) == null
->>>>>>> f9c9509021a3dc4c354a953fa7b26904b41853d7
 }
