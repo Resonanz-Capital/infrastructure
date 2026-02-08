@@ -1,8 +1,8 @@
-trigger:
-  branches:
-    include:
-      - main
-      - develop
+trigger: none
+  # branches:
+  #   include:
+  #     - main
+  #     - develop
   paths:
     include:
       - "**/*.tf"
